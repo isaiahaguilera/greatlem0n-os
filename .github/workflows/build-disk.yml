@@ -1,0 +1,194 @@
+---
+name: Build Disk Images
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Container image tag to use for disk image'
+        required: false
+        default: 'stable'
+        type: string
+      upload-to-s3:
+        description: 'Upload to S3 (requires S3 secrets configured)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  IMAGE_NAME: "${{ github.event.repository.name }}"
+  IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-qcow2:
+    name: Build QCOW2 disk image
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Maximize build space
+        uses: ublue-os/remove-unwanted-software@517622d6452028f266b7ba4cc9a123b5f58a6b53 # v7
+        with:
+          remove-codeql: true
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Container Image
+        run: |
+          IMAGE_FULL="${IMAGE_REGISTRY}/${IMAGE_NAME}:${{ inputs.image_tag }}"
+          sudo podman pull ${IMAGE_FULL}
+
+      - name: Build QCOW2 Image
+        run: |
+          IMAGE_FULL="${IMAGE_REGISTRY}/${IMAGE_NAME}:${{ inputs.image_tag }}"
+          mkdir -p output
+          sudo podman run \
+            --rm \
+            --privileged \
+            --pull=newer \
+            --security-opt label=type:unconfined_t \
+            -v $(pwd)/iso/disk.toml:/config.toml:ro \
+            -v $(pwd)/output:/output \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type qcow2 \
+            --rootfs btrfs \
+            --use-librepo=True \
+            ${IMAGE_FULL}
+
+      - name: Fix Permissions
+        run: |
+          sudo chown -R ${{ env.UID }}:${{ env.GID }} output/
+        env:
+          UID: ${{ env.UID }}
+          GID: ${{ env.GID }}
+
+      - name: Upload QCOW2 as Artifact
+        if: ${{ !inputs.upload-to-s3 }}
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4
+        with:
+          name: qcow2-image
+          path: output/qcow2/disk.qcow2
+          compression-level: 0
+          retention-days: 0
+
+      - name: Upload to S3
+        if: inputs.upload-to-s3
+        run: |
+          set -x
+          sudo apt-get update -y
+          sudo apt-get install -y rclone
+
+          # Configure rclone (requires S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY secrets)
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf << EOF
+          [s3]
+          type = s3
+          provider = Other
+          endpoint = ${{ secrets.S3_ENDPOINT }}
+          access_key_id = ${{ secrets.S3_ACCESS_KEY_ID }}
+          secret_access_key = ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          acl = public-read
+          EOF
+
+          # Upload to S3
+          rclone copy output/qcow2/disk.qcow2 s3:${{ secrets.S3_BUCKET }}/${{ env.IMAGE_NAME }}/ --progress
+
+  build-iso:
+    name: Build Anaconda ISO
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - name: Maximize build space
+        uses: ublue-os/remove-unwanted-software@517622d6452028f266b7ba4cc9a123b5f58a6b53 # v7
+        with:
+          remove-codeql: true
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Container Image
+        run: |
+          IMAGE_FULL="${IMAGE_REGISTRY}/${IMAGE_NAME}:${{ inputs.image_tag }}"
+          sudo podman pull ${IMAGE_FULL}
+
+      - name: Build ISO Image
+        run: |
+          IMAGE_FULL="${IMAGE_REGISTRY}/${IMAGE_NAME}:${{ inputs.image_tag }}"
+          mkdir -p output
+          sudo podman run \
+            --rm \
+            --privileged \
+            --pull=newer \
+            --security-opt label=type:unconfined_t \
+            -v $(pwd)/iso/iso.toml:/config.toml:ro \
+            -v $(pwd)/output:/output \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type iso \
+            --rootfs btrfs \
+            --use-librepo=True \
+            ${IMAGE_FULL}
+
+      - name: Fix Permissions
+        run: |
+          sudo chown -R ${{ env.UID }}:${{ env.GID }} output/
+        env:
+          UID: ${{ env.UID }}
+          GID: ${{ env.GID }}
+
+      - name: Upload ISO as Artifact
+        if: ${{ !inputs.upload-to-s3 }}
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4
+        with:
+          name: anaconda-iso
+          path: output/bootiso/install.iso
+          compression-level: 0
+          retention-days: 0
+
+      - name: Upload to S3
+        if: inputs.upload-to-s3
+        run: |
+          set -x
+          sudo apt-get update -y
+          sudo apt-get install -y rclone
+
+          # Configure rclone (requires S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY secrets)
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf << EOF
+          [s3]
+          type = s3
+          provider = Other
+          endpoint = ${{ secrets.S3_ENDPOINT }}
+          access_key_id = ${{ secrets.S3_ACCESS_KEY_ID }}
+          secret_access_key = ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          acl = public-read
+          EOF
+
+          # Upload to S3
+          rclone copy output/bootiso/install.iso s3:${{ secrets.S3_BUCKET }}/${{ env.IMAGE_NAME }}/ --progress

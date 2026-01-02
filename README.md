@@ -19,7 +19,8 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - None - uses base Bluefin configuration
 
 ### Configuration Changes
-- None yet - this is a fresh template ready for your customizations
+- **Disk Image CI/CD**: Manual workflow to build ISO and QCOW2 images with GitHub Actions artifacts or optional S3 upload
+- **ISO Configuration**: Anaconda installer configured to automatically switch to this image on first boot
 
 *Last updated: 2026-01-01*
 
