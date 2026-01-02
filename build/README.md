@@ -17,7 +17,7 @@ Scripts are named with a number prefix (e.g., `10-build.sh`, `20-onepassword.sh`
 To use an example script:
 1. Remove the `.example` extension
 2. Make it executable: `chmod +x build/20-yourscript.sh`
-3. The build system will automatically run it in numerical order
+3. Enable the auto-runner (see "Execution Order" section below) or add to 10-build.sh
 
 ## Creating Your Own Scripts
 
@@ -57,17 +57,42 @@ To temporarily disable a script without deleting it:
 
 ## Execution Order
 
-The Containerfile runs scripts like this:
+**By default**, the Containerfile only runs:
 
 ```dockerfile
 RUN /ctx/build/10-build.sh
 ```
 
-If you want to run multiple scripts, you can:
+### Option 1: Keep Everything in 10-build.sh (Current Default)
+The simplest approach - add all your customizations to `10-build.sh`.
 
-1. **Modify Containerfile** to run each script explicitly
-2. **Create a runner script** that executes all numbered scripts
-3. **Use the default** and keep everything in `10-build.sh` (simplest)
+### Option 2: Use the Auto-Runner Script (Recommended for Multiple Scripts)
+To automatically run all numbered scripts in order:
+
+1. **Update Containerfile** line 55 from:
+   ```dockerfile
+   /ctx/build/10-build.sh
+   ```
+   to:
+   ```dockerfile
+   /ctx/build/00-run-all.sh
+   ```
+
+2. **Rename example scripts** you want to use:
+   ```bash
+   mv build/20-onepassword.sh.example build/20-onepassword.sh
+   ```
+
+The runner will automatically execute all `[0-9][0-9]-*.sh` scripts in numerical order.
+
+### Option 3: Manually Add Scripts to Containerfile
+Add explicit RUN commands for each script:
+
+```dockerfile
+RUN --mount=... /ctx/build/10-build.sh
+RUN --mount=... /ctx/build/20-onepassword.sh
+RUN --mount=... /ctx/build/30-cosmic.sh
+```
 
 ## Notes
 
