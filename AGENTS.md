@@ -1,4 +1,4 @@
-# Copilot Instructions for finpilot bootc Image Template
+# Copilot Instructions for greatlem0n-os bootc Image Template
 
 ## CRITICAL: Pre-Commit Checklist
 
@@ -953,5 +953,5 @@ Assisted-by: Claude 3.5 Sonnet via GitHub Copilot
 ---
 
 **Last Updated**: 2025-11-14  
-**Template Version**: finpilot (Enhanced with comprehensive Copilot instructions)  
+**Template Version**: greatlem0n-os (Enhanced with comprehensive Copilot instructions)  
 **Maintainer**: Universal Blue Community

@@ -1,8 +1,27 @@
-# finpilot
+# greatlem0n-os
 
 A template for building custom bootc operating system images based on the lessons from [Universal Blue](https://universal-blue.org/) and [Bluefin](https://projectbluefin.io). It is designed to be used manually, but is optimized to be bootstraped by GitHub Copilot. After set up you'll have your own custom Linux. 
 
 > Be the one who moves, not the one who is moved.
+
+## What Makes this Image Different?
+
+This image is based on [Bluefin](https://projectbluefin.io) and includes these customizations:
+
+### Added Packages (Build-time)
+- None yet - this is a fresh template ready for your customizations
+
+### Added Applications (Runtime)
+- **CLI Tools (Homebrew)**: Default Brewfiles included for easy installation of development tools, fonts, and utilities
+- **GUI Apps (Flatpak)**: Flatpak preinstall configuration ready for your favorite applications
+
+### Removed/Disabled
+- None - uses base Bluefin configuration
+
+### Configuration Changes
+- None yet - this is a fresh template ready for your customizations
+
+*Last updated: 2026-01-01*
 
 ## Guided Copilot Mode
 
@@ -13,7 +32,7 @@ Here are the steps to guide copilot to make your own repo, or just use it like a
 3. In the "Jumpstart your project with Copilot (optional)" add this, modify to your liking:
 
 ```
-Use @projectbluefin/finpilot as a template, name the OS the repository name. Ensure the entire operating system is bootstrapped. Ensure all github actions are enabled and running.  Ensure the README has the github setup instructions for cosign and the other steps required to finish the task.
+Use @projectbluefin/greatlem0n-os as a template, name the OS the repository name. Ensure the entire operating system is bootstrapped. Ensure all github actions are enabled and running.  Ensure the README has the github setup instructions for cosign and the other steps required to finish the task.
 ```
 
 ## What's Included
@@ -68,7 +87,7 @@ Click "Use this template" to create a new repository from this template.
 
 ### 2. Rename the Project
 
-Important: Change `finpilot` to your repository name in these 5 files:
+Important: Change `greatlem0n-os` to your repository name in these 5 files:
 
 1. `Containerfile` (line 9): `# Name: your-repo-name`
 2. `Justfile` (line 1): `export image_name := "your-repo-name"`
