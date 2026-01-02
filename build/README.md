@@ -8,7 +8,9 @@ Scripts are named with a number prefix (e.g., `10-build.sh`, `20-onepassword.sh`
 
 ## Included Scripts
 
+- **`00-run-all.sh`** - Optional runner that executes all numbered scripts in order
 - **`10-build.sh`** - Main build script for base system modifications, package installation, and service configuration
+- **`20-vscode.sh`** - Install Visual Studio Code from the official Microsoft repository
 
 ## Example Scripts
 
@@ -17,7 +19,7 @@ Scripts are named with a number prefix (e.g., `10-build.sh`, `20-onepassword.sh`
 To use an example script:
 1. Remove the `.example` extension
 2. Make it executable: `chmod +x build/20-yourscript.sh`
-3. Enable the auto-runner (see "Execution Order" section below) or add to 10-build.sh
+3. Ensure the auto-runner is enabled (see "Execution Order" section below) or add to 10-build.sh
 
 ## Creating Your Own Scripts
 
@@ -35,7 +37,7 @@ Create numbered scripts for different purposes:
 
 ```bash
 #!/usr/bin/env bash
-set -oue pipefail
+set -eoux pipefail
 
 echo "Running custom setup..."
 # Your commands here
@@ -57,26 +59,23 @@ To temporarily disable a script without deleting it:
 
 ## Execution Order
 
-**By default**, the Containerfile only runs:
+**By default**, the Containerfile runs:
 
 ```dockerfile
-RUN /ctx/build/10-build.sh
+RUN /ctx/build/00-run-all.sh
 ```
 
-### Option 1: Keep Everything in 10-build.sh (Current Default)
-The simplest approach - add all your customizations to `10-build.sh`.
+### Option 1: Keep Everything in 10-build.sh (Simplest)
+The simplest approach - add all your customizations to `10-build.sh` and update the Containerfile to run it directly.
 
-### Option 2: Use the Auto-Runner Script (Recommended for Multiple Scripts)
+### Option 2: Use the Auto-Runner Script (Current Default)
 To automatically run all numbered scripts in order:
 
-1. **Update Containerfile** line 55 from:
-   ```dockerfile
-   /ctx/build/10-build.sh
-   ```
-   to:
+1. **Verify Containerfile** uses:
    ```dockerfile
    /ctx/build/00-run-all.sh
    ```
+   If it points to `/ctx/build/10-build.sh`, update it.
 
 2. **Rename example scripts** you want to use:
    ```bash

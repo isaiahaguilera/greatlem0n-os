@@ -1,0 +1,241 @@
+// Polkit Rules for Remote Desktop (RDP) - Mirror Local Behavior to Remote
+//
+// PHILOSOPHY:
+// These rules mirror default local behavior to remote sessions without suppressing
+// prompts that would appear locally. Each rule was added because it triggered a
+// password prompt over RDP that wouldn't prompt locally for wheel users.
+//
+// APPROACH:
+// - Add rules as authentication prompts are discovered over RDP
+// - Only include actions that DON'T prompt locally for wheel users
+// - Never use blanket rules that might suppress legitimate local prompts
+// - Each rule documented with what it fixes and why it's needed
+//
+// SECURITY MODEL:
+// - All rules require wheel group membership (admin privileges)
+// - Session-based rules require active session (no background processes)
+// - Pre-session rules (metadata, login helpers) are intentionally more permissive
+// - RDP authentication already verified user identity before these rules apply
+
+// ============================================================================
+// PRE-SESSION RULES (fire before active session exists)
+// ============================================================================
+
+// RULE: Flatpak Metadata Updates
+// WHEN: During login, before active session exists
+// WHAT: Allows any user to update Flatpak metadata (software catalog info)
+// WHY: Eliminates "Authentication required to update information about software" at login screen
+// SECURITY: Very low risk - metadata updates are read-only, cryptographically signed
+// LOCAL BEHAVIOR: May or may not prompt (varies by timing, but annoying when it does)
+polkit.addRule(function(action, subject) {
+    if (action.id === "org.freedesktop.Flatpak.metadata-update" ||
+        action.id === "org.freedesktop.Flatpak.appstream-update" ||
+        action.id === "org.freedesktop.Flatpak.update-remote") {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// RULE: RDP Login Helpers
+// WHEN: During RDP connection establishment, before active session exists
+// WHAT: Allows wheel users to use remote session/login helpers
+// WHY: Eliminates password prompts during RDP connection process
+// SECURITY: Wheel group only, authentication happens at RDP layer first
+// LOCAL BEHAVIOR: N/A - these actions only fire during remote login
+polkit.addRule(function(action, subject) {
+    if ((action.id === "org.gnome.controlcenter.remote-session-helper" ||
+         action.id === "org.gnome.controlcenter.remote-login-helper") &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// ============================================================================
+// ACTIVE SESSION RULES (require active session, wheel group)
+// ============================================================================
+
+// RULE: NetworkManager Operations
+// ACTIONS: WiFi toggle, network configuration, network control
+// DISCOVERED: WiFi settings required password over RDP
+// LOCAL BEHAVIOR: Wheel users can toggle WiFi without password locally
+// WHY NEEDED: Default rules check subject.local, which fails for RDP sessions
+polkit.addRule(function(action, subject) {
+    if ((action.id.indexOf("org.freedesktop.NetworkManager.") === 0 ||
+         action.id === "org.freedesktop.network-control") &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// RULE: Flatpak Operations
+// ACTIONS: Install/uninstall apps and runtimes, modify repos, update software
+// DISCOVERED: Software Center and Warehouse required password over RDP
+// LOCAL BEHAVIOR: Wheel users can manage Flatpaks without password locally
+// WHY NEEDED: Default rules check subject.local for Flatpak operations
+polkit.addRule(function(action, subject) {
+    if ((action.id === "org.freedesktop.Flatpak.app-install" ||
+         action.id === "org.freedesktop.Flatpak.runtime-install" ||
+         action.id === "org.freedesktop.Flatpak.app-uninstall" ||
+         action.id === "org.freedesktop.Flatpak.runtime-uninstall" ||
+         action.id === "org.freedesktop.Flatpak.modify-repo" ||
+         action.id === "org.freedesktop.Flatpak.app-update" ||
+         action.id === "org.freedesktop.Flatpak.runtime-update") &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// RULE: GNOME Control Center Operations
+// ACTIONS: Locale, keyboard, hostname, datetime settings
+// DISCOVERED: System settings panels required password over RDP
+// LOCAL BEHAVIOR: Wheel users can change these settings without password locally
+// WHY NEEDED: Control Center checks subject.local for system settings
+polkit.addRule(function(action, subject) {
+    if ((action.id === "org.freedesktop.locale1.set-locale" ||
+         action.id === "org.freedesktop.locale1.set-keyboard" ||
+         action.id === "org.freedesktop.ModemManager1.Device.Control" ||
+         action.id === "org.freedesktop.hostname1.set-static-hostname" ||
+         action.id === "org.freedesktop.hostname1.set-hostname" ||
+         action.id === "org.gnome.controlcenter.datetime.configure") &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// RULE: Bluetooth Management
+// ACTIONS: Bluetooth toggle, device pairing
+// DISCOVERED: Bluetooth settings required password over RDP
+// LOCAL BEHAVIOR: Wheel users can manage Bluetooth without password locally
+// WHY NEEDED: Works in conjunction with udev rfkill rule for hardware access
+// NOTE: Requires /etc/udev/rules.d/90-rfkill-remote-access.rules for full functionality
+polkit.addRule(function(action, subject) {
+    if ((action.id.indexOf("org.bluez.") === 0 ||
+         action.id.indexOf("org.freedesktop.bluetooth.") === 0) &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// RULE: Audio/Sound Device Management
+// ACTIONS: Audio device permissions for PipeWire/PulseAudio/RealtimeKit
+// DISCOVERED: May be needed for audio settings over RDP (preventive)
+// LOCAL BEHAVIOR: Wheel users have audio control without password locally
+// WHY NEEDED: Audio subsystems may check subject.local for device access
+polkit.addRule(function(action, subject) {
+    if ((action.id.indexOf("org.freedesktop.RealtimeKit1.") === 0 ||
+         action.id.indexOf("org.pulseaudio.") === 0 ||
+         action.id.indexOf("org.pipewire.") === 0) &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// RULE: Color Management
+// ACTIONS: Create/modify/delete color profiles and devices
+// DISCOVERED: Color profile prompts during login
+// LOCAL BEHAVIOR: Wheel users can manage color profiles without password locally
+// WHY NEEDED: Color manager checks subject.local, causes prompts during session start
+polkit.addRule(function(action, subject) {
+    if ((action.id === "org.freedesktop.color-manager.create-device" ||
+         action.id === "org.freedesktop.color-manager.create-profile" ||
+         action.id === "org.freedesktop.color-manager.delete-device" ||
+         action.id === "org.freedesktop.color-manager.delete-profile" ||
+         action.id === "org.freedesktop.color-manager.modify-device" ||
+         action.id === "org.freedesktop.color-manager.modify-profile") &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// RULE: System Power Operations
+// ACTIONS: Reboot, shutdown, suspend, hibernate
+// DISCOVERED: Pre-emptively added - will need for system maintenance over RDP
+// LOCAL BEHAVIOR: Wheel users can reboot/shutdown without password locally
+// WHY NEEDED: Default rules check subject.local for power operations
+polkit.addRule(function(action, subject) {
+    if ((action.id === "org.freedesktop.login1.reboot" ||
+         action.id === "org.freedesktop.login1.reboot-multiple-sessions" ||
+         action.id === "org.freedesktop.login1.power-off" ||
+         action.id === "org.freedesktop.login1.power-off-multiple-sessions" ||
+         action.id === "org.freedesktop.login1.suspend" ||
+         action.id === "org.freedesktop.login1.suspend-multiple-sessions" ||
+         action.id === "org.freedesktop.login1.hibernate" ||
+         action.id === "org.freedesktop.login1.hibernate-multiple-sessions") &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// ============================================================================
+// GVFS ADMIN FILE OPERATIONS (admin:/// in GNOME Files)
+// ============================================================================
+
+// RULE: GVFS Admin Daemon Startup
+// ACTIONS: org.gtk.vfs.file-operations-helper
+// DISCOVERED: admin:/// in GNOME Files denied over RDP
+// WHAT: Allows gvfsd-admin daemon to start for wheel users
+// LOCAL BEHAVIOR: Wheel users can start gvfsd-admin without password locally
+// WHY NEEDED: System rule checks subject.local, blocking remote sessions
+// SECURITY: Only allows daemon startup - actual file operations require separate auth
+polkit.addRule(function(action, subject) {
+    if (action.id === "org.gtk.vfs.file-operations-helper" &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// RULE: GVFS Admin File Operations with Authentication
+// ACTIONS: org.gtk.vfs.file-operations
+// DISCOVERED: Needed for actual privileged file operations via admin:///
+// WHAT: Requires authentication for privileged file operations in remote sessions
+// LOCAL BEHAVIOR: Wheel users are prompted for password when performing file operations
+// WHY NEEDED: Mirrors local behavior by requiring auth for actual operations
+// SECURITY: AUTH_ADMIN_KEEP ensures password prompt for privileged operations
+polkit.addRule(function(action, subject) {
+    if (action.id === "org.gtk.vfs.file-operations" &&
+        subject.active &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.AUTH_ADMIN_KEEP;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+
+// ============================================================================
+// FUTURE RULES
+// ============================================================================
+// When new password prompts are encountered over RDP:
+// 1. Identify the polkit action ID (check journalctl or polkit logs)
+// 2. Test the action locally to confirm it doesn't prompt for wheel users
+// 3. Add a new rule following the pattern above
+// 4. Document what triggered it and why it's needed
+// 5. Rebuild image and test
+//
+// To identify action IDs when prompted:
+//   sudo journalctl -u polkit --since "5 minutes ago" | grep -i "action"
+//
+// Example template for new rules:
+// polkit.addRule(function(action, subject) {
+//     if (action.id === "org.example.some-action" &&
+//         subject.active &&
+//         subject.isInGroup("wheel")) {
+//         return polkit.Result.YES;
+//     }
+//     return polkit.Result.NOT_HANDLED;
+// });

@@ -1,0 +1,58 @@
+# Hardware Access for Wheel Users (Admin Group)
+#
+# WHY THIS EXISTS:
+# When you connect via remote desktop (RDP) or SSH, Linux treats you differently than
+# sitting at the physical computer. Default udev rules use TAG=="uaccess" which only
+# applies to local sessions. Remote users can't access hardware like WiFi toggles, USB
+# devices, or webcams - even admins get "permission denied" errors.
+#
+# WHAT THIS DOES:
+# Grants wheel group (admin) users direct hardware access via GROUP="wheel", MODE="0664"
+# on device nodes. This gives them the same hardware access remotely that they'd have
+# sitting at the machine. No extra privileges - just fixes the arbitrary local vs remote
+# distinction.
+#
+# SECURITY NOTE:
+# Wheel users can already do anything via sudo. This just saves them from typing sudo
+# for basic hardware access they'd normally have anyway. MODE="0664" gives read/write
+# to owner and group, read-only to others.
+#
+# Companion file: /etc/polkit-1/rules.d/90-remote-desktop-permissions.rules
+
+# Radio controls (/dev/rfkill)
+# Enables WiFi/Bluetooth toggles in GNOME Settings for NetworkManager and BlueZ
+KERNEL=="rfkill", SUBSYSTEM=="misc", GROUP="wheel", MODE="0664"
+
+# Serial devices (/dev/ttyUSB*, /dev/ttyACM*, /dev/ttyS*)
+# For Arduino, ESP32, serial consoles, embedded development tools
+KERNEL=="ttyUSB*|ttyACM*|ttyS*", GROUP="wheel", MODE="0664"
+
+# Video capture devices (/dev/video*)
+# For webcams, capture cards - used by OBS, ffmpeg, browsers
+SUBSYSTEM=="video4linux", GROUP="wheel", MODE="0664"
+
+# USB devices (/dev/bus/usb/*)
+# For firmware flashing, libusb apps, usb_modeswitch, device diagnostics
+SUBSYSTEM=="usb", GROUP="wheel", MODE="0664"
+
+# Block devices (/dev/sda, /dev/nvme*, /dev/mmcblk*, etc.)
+# For GNOME Disks, gparted, dd, disk management and mounting
+SUBSYSTEM=="block", GROUP="wheel", MODE="0664"
+
+# Input devices (/dev/input/*)
+# For evtest, input-remapper, game controller configuration
+SUBSYSTEM=="input", GROUP="wheel", MODE="0664"
+
+# GPIO and embedded interfaces (/dev/gpiochip*, /dev/spidev*, /dev/i2c-*)
+# For Raspberry Pi GPIO, SPI/I2C devices, embedded development, sensors
+SUBSYSTEM=="gpio|spidev|i2c-dev", GROUP="wheel", MODE="0664"
+
+# DRM - GPU/display management (/dev/dri/*)
+# For GPU utilities, graphics debugging, display configuration
+SUBSYSTEM=="drm", GROUP="wheel", MODE="0664"
+
+# Reload rules:  sudo udevadm control --reload-rules && sudo udevadm trigger
+# Verify perms:  ls -l /dev/rfkill  (should show: crw-rw-r-- 1 root wheel)
+# Test rule:     udevadm test /sys/class/misc/rfkill
+#
+# MODE="0664" = owner:rw, group:rw, others:r

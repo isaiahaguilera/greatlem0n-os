@@ -2,7 +2,7 @@
 
 [![Build container image](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml/badge.svg)](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml)
 
-A template for building custom bootc operating system images based on the lessons from [Universal Blue](https://universal-blue.org/) and [Bluefin](https://projectbluefin.io). It is designed to be used manually, but is optimized to be bootstraped by GitHub Copilot. After set up you'll have your own custom Linux. 
+A custom bootc operating system image based on [Universal Blue](https://universal-blue.org/) and [Bluefin](https://projectbluefin.io). Built from the finpilot template with system configuration management and remote desktop optimizations.
 
 > Be the one who moves, not the one who is moved.
 
@@ -10,57 +10,50 @@ A template for building custom bootc operating system images based on the lesson
 
 This image is based on [Bluefin](https://projectbluefin.io) and includes these customizations:
 
+### System Configuration
+- **Remote Desktop Optimizations**: PolicyKit rules to mirror local behavior to RDP sessions for wheel users
+  - NetworkManager, Flatpak, GNOME settings, Bluetooth, power operations work seamlessly over RDP
+  - No password prompts for actions that don't require them locally
+- **Hardware Access for Remote Sessions**: Udev rules granting wheel users direct hardware access over RDP/SSH
+  - WiFi/Bluetooth toggles, USB devices, video capture, block devices, GPIO, DRM/GPU access
+  - Eliminates "permission denied" errors for remote admin users
+
 ### Added Packages (Build-time)
-- None yet - this is a fresh template ready for your customizations
+- Core system packages and services (see `build/10-build.sh`)
+- Visual Studio Code from the official Microsoft repository for development work
 
 ### Added Applications (Runtime)
-- **CLI Tools (Homebrew)**: Default Brewfiles included for easy installation of development tools, fonts, and utilities
-- **GUI Apps (Flatpak)**: Flatpak preinstall configuration ready for your favorite applications
+- **CLI Tools (Homebrew)**: Brewfiles for development tools, fonts, and utilities (see `custom/brew/`)
+- **GUI Apps (Flatpak)**: Flatpak preinstall configuration (see `custom/flatpaks/`)
 
-### Removed/Disabled
-- None - uses base Bluefin configuration
+### Configuration Files
+- `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`
+- `system_files/shared/etc/udev/rules.d/90-wheel-hardware-access.rules`
 
-### Configuration Changes
-- None yet - this is a fresh template ready for your customizations
+*Last updated: 2026-01-02*
 
-*Last updated: 2026-01-01*
+## Build Features
 
-## Template Enhancements
+Custom enhancements added to this image:
 
-Enhancements added beyond the base finpilot template:
-
-- **Optional Build Script Auto-Runner**: `00-run-all.sh` script to automatically execute numbered build scripts in order (see `build/README.md`)
-- **Manual Disk Image Builder**: GitHub Actions workflow to build ISOs and QCOW2 images on demand with artifact downloads or S3 upload
-- **Claude Code Support**: Added CLAUDE.md for Claude Code CLI integration alongside existing AGENTS.md
-
-*The base template already includes: Image signing, validation workflows, Renovate bot, Homebrew/Flatpak integration, and comprehensive AI assistant documentation.*
-
-## Guided Copilot Mode
-
-Here are the steps to guide copilot to make your own repo, or just use it like a regular image template.
-
-1. Click the green "Use this as a template" button and create a new repository
-2. Select your owner, pick a repo name for your OS, and a description
-3. In the "Jumpstart your project with Copilot (optional)" add this, modify to your liking:
-
-```
-Use @projectbluefin/greatlem0n-os as a template, name the OS the repository name. Ensure the entire operating system is bootstrapped. Ensure all github actions are enabled and running.  Ensure the README has the github setup instructions for cosign and the other steps required to finish the task.
-```
+- **System Files Management**: Universal Blue pattern for polkit/udev rules (see `system_files/`)
+- **Build Script Auto-Runner**: `00-run-all.sh` executes numbered scripts automatically (see `build/README.md`)
+- **Manual Disk Image Builder**: GitHub Actions workflow for on-demand ISO and QCOW2 builds
+- **AI Assistant Integration**: Comprehensive AGENTS.md and CLAUDE.md for development guidance
 
 ## What's Included
 
 ### Build System
-- Automated builds via GitHub Actions on every commit
-- Awesome self hosted Renovate setup that keeps all your images and actions up to date.
-- Automatic cleanup of old images (90+ days) to keep it tidy
-- Pull request workflow - test changes before merging to main
-  - PRs build and validate before merge
-  - `main` branch builds `:stable` images
-- Validates your files on pull requests so you never break a build:
-  - Brewfile, Justfile, ShellCheck, Renovate config, and it'll even check to make sure the flatpak you add exists on FlatHub
-- Production Grade Features
-  - Container signing, SBOM Generation, and layer rechunking.
-  - See checklist below to enable these as they take some manual configuration
+- Automated builds via GitHub Actions on every push to main
+- Self-hosted Renovate updates base images and dependencies every 6 hours
+- Automatic cleanup of old images (90+ days)
+- Single-branch workflow: All commits to `main` build `:stable` images
+- Validation workflows for code quality:
+  - Brewfile, Justfile, ShellCheck, Renovate config, Flatpak ID verification
+- Production features:
+  - Container signing with cosign
+  - SBOM generation (disabled by default)
+  - Layer rechunking (disabled by default)
 
 ### Homebrew Integration
 - Pre-configured Brewfiles for easy package installation and customization
@@ -93,63 +86,37 @@ Use @projectbluefin/greatlem0n-os as a template, name the OS the repository name
 
 ## Quick Start
 
-### 1. Create Your Repository
+### Customize the Image
 
-Click "Use this template" to create a new repository from this template.
-
-### 2. Rename the Project
-
-Important: Change `greatlem0n-os` to your repository name in these 5 files:
-
-1. `Containerfile` (line 9): `# Name: your-repo-name`
-2. `Justfile` (line 1): `export image_name := "your-repo-name"`
-3. `README.md` (line 1): `# your-repo-name`
-4. `artifacthub-repo.yml` (line 5): `repositoryID: your-repo-name`
-5. `custom/ujust/README.md` (~line 175): `localhost/your-repo-name:stable`
-
-### 3. Enable GitHub Actions
-
-- Go to the "Actions" tab in your repository
-- Click "I understand my workflows, go ahead and enable them"
-
-Your first build will start automatically! 
-
-Note: Image signing is disabled by default. Your images will build successfully without any signing keys. Once you're ready for production, see "Optional: Enable Image Signing" below.
-
-### 4. Customize Your Image
-
-Choose your base image in `Containerfile` (line 23):
-```dockerfile
-FROM ghcr.io/ublue-os/bluefin:stable
-```
-
-Add your packages in `build/10-build.sh`:
+Add build-time packages in `build/10-build.sh`:
 ```bash
 dnf5 install -y package-name
 ```
 
-Customize your apps:
+Add system configuration files in `system_files/shared/`:
+```
+system_files/shared/etc/
+├── polkit-1/rules.d/     # PolicyKit rules
+└── udev/rules.d/         # Device permissions
+```
+
+Customize runtime apps:
 - Add Brewfiles in `custom/brew/` ([guide](custom/brew/README.md))
 - Add Flatpaks in `custom/flatpaks/` ([guide](custom/flatpaks/README.md))
 - Add ujust commands in `custom/ujust/` ([guide](custom/ujust/README.md))
 
-### 5. Development Workflow
+### Development Workflow
 
-All changes should be made via pull requests:
+1. Make changes to the repository
+2. Test locally (see "Local Testing" below)
+3. Commit with conventional commit format (e.g., `feat: add new package`)
+4. Push to `main` - GitHub Actions builds `:stable` image automatically
 
-1. Open a pull request on GitHub with the change you want.
-3. The PR will automatically trigger:
-   - Build validation
-   - Brewfile, Flatpak, Justfile, and shellcheck validation
-   - Test image build
-4. Once checks pass, merge the PR
-5. Merging triggers publishes a `:stable` image
+### Deploy the Image
 
-### 6. Deploy Your Image
-
-Switch to your image:
+Switch to this image:
 ```bash
-sudo bootc switch ghcr.io/your-username/your-repo-name:stable
+sudo bootc switch ghcr.io/isaiahaguilera/greatlem0n-os:stable
 sudo systemctl reboot
 ```
 
@@ -199,53 +166,34 @@ This creates two files:
 
 Important: Never commit `cosign.key` to the repository. It's already in `.gitignore`.
 
-## Love Your Image? Let's Go to Production
+## Additional Features
 
-Ready to take your custom OS to production? Enable these features for enhanced security, reliability, and performance:
+Optional features available for enhanced security and reliability:
 
-### Production Checklist
+### Rechunker (Disabled)
 
-- [ ] **Enable Image Signing** (Recommended)
-  - Provides cryptographic verification of your images
-  - Prevents tampering and ensures authenticity
-  - See "Optional: Enable Image Signing" section above for setup instructions
-  - Status: **Disabled by default** to allow immediate testing
+Optimizes image layer distribution for better download resumability.
 
-- [ ] **Enable Rechunker** (Recommended)
-  - Optimizes image layer distribution for better download resumability
-  - Improves reliability for users with unstable connections
-  - To enable:
-    1. Edit `.github/workflows/build.yml`
-    2. Find the "Rechunk (OPTIONAL)" section around line 121
-    3. Uncomment the "Run Rechunker" step
-    4. Uncomment the "Load in podman and tag" step
-    5. Comment out the "Tag for registry" step that follows
-    6. Commit and push
-  - Status: **Disabled by default** for faster initial builds
+To enable:
+1. Edit `.github/workflows/build.yml`
+2. Uncomment the "Run Rechunker" step (around line 121)
+3. Uncomment the "Load in podman and tag" step
+4. Comment out the "Tag for registry" step
 
-- [ ] **Enable SBOM Attestation** (Recommended)
-  - Generates Software Bill of Materials for supply chain security
-  - Provides transparency about what's in your image
-  - Requires image signing to be enabled first
-  - To enable:
-    1. First complete image signing setup above
-    2. Edit `.github/workflows/build.yml`
-    3. Find the "OPTIONAL: SBOM Attestation" section around line 232
-    4. Uncomment the "Add SBOM Attestation" step
-    5. Commit and push
-  - Status: **Disabled by default** (requires signing first)
+### SBOM Attestation (Disabled)
 
-### After Enabling Production Features
+Generates Software Bill of Materials for supply chain transparency.
 
-Your workflow will:
-- Sign all images with your key
-- Generate and attach SBOMs
-- Optimize layers for better distribution
-- Provide full supply chain transparency
+Requires image signing to be enabled first. To enable:
+1. Complete image signing setup above
+2. Edit `.github/workflows/build.yml`
+3. Uncomment the "Add SBOM Attestation" step (around line 232)
 
-Users can verify your images with:
+### Image Verification
+
+Once signing is enabled, verify images with:
 ```bash
-cosign verify --key cosign.pub ghcr.io/your-username/your-repo-name:stable
+cosign verify --key cosign.pub ghcr.io/isaiahaguilera/greatlem0n-os:stable
 ```
 
 ## Detailed Guides
@@ -278,10 +226,8 @@ just run-vm-qcow2       # Test in browser-based VM
 
 ## Security
 
-This template provides security features for production use:
-- Optional SBOM generation (Software Bill of Materials) for supply chain transparency
-- Optional image signing with cosign for cryptographic verification
-- Automated security updates via Renovate
-- Build provenance tracking
-
-These security features are disabled by default to allow immediate testing. When you're ready for production, see the "Love Your Image? Let's Go to Production" section above to enable them.
+Security features available:
+- Image signing with cosign (enabled)
+- SBOM generation (disabled - see "Additional Features")
+- Automated security updates via Renovate (enabled)
+- Build provenance tracking via GitHub Actions

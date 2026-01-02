@@ -21,6 +21,9 @@ set -eoux pipefail
 
 echo "::group:: Running build scripts"
 
+# Avoid iterating over the literal pattern when no scripts match.
+shopt -s nullglob
+
 # Find and execute all numbered scripts in order
 for script in /ctx/build/[0-9][0-9]-*.sh; do
     # Skip this runner script itself

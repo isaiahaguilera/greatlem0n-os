@@ -1,4 +1,4 @@
-# Copilot Instructions for greatlem0n-os bootc Image Template
+# Development Instructions for greatlem0n-os
 
 ## CRITICAL: Pre-Commit Checklist
 
@@ -19,78 +19,6 @@
 <type>[optional scope]: <description>
 ```
 
-## CRITICAL: Template Initialization
-
-**When this repository is used as a template, you MUST:**
-
-### 1. Rename ALL instances of `finpilot`
-
-**Source of truth**: `Containerfile` line 9: `# Name: finpilot`
-
-**Files to update:**
-- `Containerfile` (line 9)
-- `Justfile` (line 1)
-- `README.md` (line 1)
-- `artifacthub-repo.yml` (line 5)
-- `custom/ujust/README.md` (~line 175)
-- `.github/workflows/ghcr-pruner.yml` (line 22)
-
-### 2. Create "What's Different" and "Template Features" sections in README
-
-**CRITICAL**: Add these sections near the top of README.md (after the title/intro, before detailed docs):
-
-```markdown
-## What Makes this Image Different?
-
-Here are the changes from [Base Image Name]. This image is based on [Bluefin/Bazzite/Aurora/etc] and includes these customizations:
-
-### Added Packages (Build-time)
-- **System packages**: tmux, micro, mosh - [brief explanation of why]
-
-### Added Applications (Runtime)
-- **CLI Tools (Homebrew)**: neovim, helix - [brief explanation]
-- **GUI Apps (Flatpak)**: Spotify, Thunderbird - [brief explanation]
-
-### Removed/Disabled
-- List anything removed from base image
-
-### Configuration Changes
-- Any systemd services enabled/disabled
-- Desktop environment changes
-- Other notable modifications
-
-*Last updated: [date]*
-
-## Template Enhancements
-
-Enhancements added beyond the base template:
-
-- **[List only NEW features added to THIS instance]**
-- Example: Build script auto-runner, disk image builder, additional documentation
-
-*List only additions/improvements made beyond the base finpilot template.
-The base template already includes signing, validation, Renovate, etc.*
-```
-
-**Maintenance requirements**:
-- **"What's Different"**: Update when you modify OS packages, apps, or system configuration
-- **"Template Features"**: Update when you add/modify build infrastructure, workflows, or development tools
-- Keep descriptions brief and user-focused (explain "why", not just "what")
-- Write for typical Linux users, not developers
-- Update the "Last updated" date on "What's Different" with each OS change
-
-### 3. Verify copilot instructions are present
-
-Confirm `.github/copilot-instructions.md` exists in the new repository. This file should be automatically copied when using this as a GitHub template.
-
-### 4. Explain signing is optional
-
-Signing is DISABLED by default. First builds succeed immediately. Enable later for production (see README).
-
-**These 4 steps are REQUIRED for every new template instance.**
-
----
-
 ## Repository Structure
 
 ```
@@ -102,6 +30,12 @@ Signing is DISABLED by default. First builds succeed immediately. Enable later f
 │   ├── 30-*.sh.example  # Example desktop replacement (rename to use)
 │   ├── copr-helpers.sh  # Helper functions for COPR repositories
 │   └── README.md        # Build scripts documentation
+├── system_files/         # System-level configs (polkit, udev, etc.) - Universal Blue pattern
+│   ├── shared/          # Mirrors root filesystem structure
+│   │   └── etc/         # System configuration files
+│   │       ├── polkit-1/rules.d/    # PolicyKit authorization rules
+│   │       └── udev/rules.d/        # Device access rules
+│   └── README.md        # System files documentation
 ├── custom/               # User customizations (NOT in container, installed at runtime/first boot)
 │   ├── brew/            # Homebrew Brewfiles (CLI tools, dev tools)
 │   │   ├── default.Brewfile      # General CLI tools
@@ -142,6 +76,15 @@ Signing is DISABLED by default. First builds succeed immediately. Enable later f
 - **Build-time** (`build/`): Baked into container. Use `dnf5 install`. Services, configs, system packages.
 - **Runtime** (`custom/`): User installs after deployment. Use Brewfiles, Flatpaks. CLI tools, GUI apps, dev environments.
 
+### README Maintenance
+**ALWAYS update README.md "What's Different" section when modifying:**
+- OS packages (build-time or runtime)
+- GUI applications (Flatpaks)
+- System configuration (polkit, udev, systemd services)
+- Desktop environment or major system changes
+
+**Update the "Last updated" date** after changes to help track image evolution.
+
 ### Bluefin Convention Compliance
 **ALWAYS follow @ublue-os/bluefin patterns. Confirm before deviating.**
 - Use `dnf5` exclusively (never `dnf`, `yum`, `rpm-ostree`)
@@ -152,9 +95,10 @@ Signing is DISABLED by default. First builds succeed immediately. Enable later f
 - Check @bootc-dev for container best practices
 
 ### Branch Strategy
-- **main** = Production releases ONLY. Never push directly. Builds `:stable` images.
+- **main** = Single branch for all development. Builds `:stable` images.
 - **Conventional Commits** = REQUIRED. `feat:`, `fix:`, `chore:`, etc.
-- **Workflows** = All validation happens on PRs. Merging to main triggers stable builds.
+- **Testing** = Test risky changes in VM before pushing (`just build-qcow2 && just run-vm-qcow2`)
+- **Rollback** = Use `bootc switch` to previous image if needed
 
 ### Validation Workflows
 The repository includes automated validation on pull requests:
@@ -270,6 +214,53 @@ Branch=stable
 - Use INI format with `[Flatpak Preinstall APP_ID]` sections
 - Always specify `Branch=stable` (or another branch)
 
+### System Configuration Files (Build-time)
+
+**Location**: `system_files/shared/`
+
+System configuration files (polkit, udev, etc.) are copied directly into the OS image during build. This follows the Universal Blue pattern used in Bluefin's modular OCI architecture.
+
+**Structure**:
+```
+system_files/shared/    # Mirrors root filesystem
+└── etc/
+    ├── polkit-1/rules.d/    # PolicyKit authorization rules
+    └── udev/rules.d/        # Device access rules
+```
+
+**Example - PolicyKit rule**:
+```javascript
+// In system_files/shared/etc/polkit-1/rules.d/90-custom.rules
+polkit.addRule(function(action, subject) {
+    if (action.id === "org.example.some-action" &&
+        subject.isInGroup("wheel")) {
+        return polkit.Result.YES;
+    }
+    return polkit.Result.NOT_HANDLED;
+});
+```
+
+**Example - Udev rule**:
+```bash
+# In system_files/shared/etc/udev/rules.d/90-custom.rules
+# Grant wheel group access to rfkill device
+KERNEL=="rfkill", SUBSYSTEM=="misc", GROUP="wheel", MODE="0664"
+```
+
+**When to use**:
+- PolicyKit authorization rules (mirror local behavior to remote sessions)
+- Udev device permission rules (hardware access for wheel users)
+- Other system configuration files that need specific filesystem paths
+
+**Current files**:
+- `90-remote-desktop-permissions.rules` - RDP authorization (NetworkManager, Flatpak, GNOME settings, power ops)
+- `90-wheel-hardware-access.rules` - Hardware access for remote sessions (rfkill, USB, video, block devices)
+
+**Important**:
+- Files are copied with `cp -r /ctx/system_files/shared/* /` during build
+- Directory structure mirrors final filesystem paths
+- See `system_files/README.md` for complete documentation
+
 ---
 
 ## Quick Reference: Common User Requests
@@ -277,6 +268,7 @@ Branch=stable
 | Request | Action | Location |
 |---------|--------|----------|
 | Add package (build-time) | `dnf5 install -y pkg` | `build/10-build.sh` |
+| Add system config (polkit/udev) | Mirror filesystem structure | `system_files/shared/etc/` |
 | Add package (runtime) | `brew "pkg"` | `custom/brew/default.Brewfile` |
 | Add GUI app | `[Flatpak Preinstall org.app.id]` | `custom/flatpaks/default.preinstall` |
 | Add user command | Create shortcut (NO dnf5) | `custom/ujust/*.just` |
@@ -442,16 +434,16 @@ bootc switch --mutate-in-place --transport registry ghcr.io/USERNAME/REPO:stable
 
 **Upload**: Use `iso/rclone/` configs (Cloudflare R2, AWS S3, Backblaze B2, SFTP)
 
-### 7. Release Workflow
+### 7. Build & Release Workflow
 
-**Branches**:
-- `main` - Production only. Builds `:stable` images. Never push directly.
+**Branch**:
+- `main` - Single branch. All commits build `:stable` images.
 
 **Workflows**:
-- `build.yml` - Builds `:stable` on main
+- `build.yml` - Builds `:stable` on every push to main
 - `renovate.yml` - Monitors base image updates (every 6 hours)
 - `clean.yml` - Deletes images >90 days (weekly)
-- `validate-*.yml` - Pre-merge validation (shellcheck, Brewfile, Flatpak, etc.)
+- `validate-*.yml` - Validation checks (shellcheck, Brewfile, Flatpak, etc.)
 
 **Image Tags**:
 - `:stable` - Latest stable release from main branch
@@ -501,16 +493,14 @@ COSIGN_PASSWORD="" cosign generate-key-pair
 4. **ALWAYS** use `dnf5` exclusively (never `dnf`, `yum`, `rpm-ostree`)
 5. **ALWAYS** use `-y` flag for non-interactive installs
 6. **NEVER** use `dnf5` in ujust files - only Brewfile/Flatpak shortcuts
-7. **ALWAYS** work on testing branch for development
-8. **ALWAYS** let Release Please handle testing→main merges
-9. **NEVER** push directly to main (only via Release Please)
-10. **ALWAYS** confirm with user before deviating from @ublue-os/bluefin patterns
-11. **ALWAYS** run shellcheck/YAML validation before committing
-12. **ALWAYS** update bootc switch URL in `iso/iso.toml` to match user's repo
-13. **ALWAYS** follow numbered script convention: `10-*.sh`, `20-*.sh`, `30-*.sh`
-14. **ALWAYS** check example scripts before creating new patterns (`.example` files in `build/`)
-15. **ALWAYS** validate that new Flatpak IDs exist on Flathub before adding
-16. **NEVER** modify validation workflows without understanding impact on PR checks
+7. **ALWAYS** update README.md "What's Different" section when modifying packages/configs
+8. **ALWAYS** confirm with user before deviating from @ublue-os/bluefin patterns
+9. **ALWAYS** run shellcheck/YAML validation before committing
+10. **ALWAYS** update bootc switch URL in `iso/iso.toml` to match repo
+11. **ALWAYS** follow numbered script convention: `10-*.sh`, `20-*.sh`, `30-*.sh`
+12. **ALWAYS** check example scripts before creating new patterns (`.example` files in `build/`)
+13. **ALWAYS** validate that new Flatpak IDs exist on Flathub before adding
+14. **NEVER** modify validation workflows without understanding impact on PR checks
 ---
 
 ## Troubleshooting
@@ -926,6 +916,74 @@ brew install package-name
 
 ---
 
+## Project Vision & Modular Migration
+
+### Current State
+
+This repository currently uses a **monolithic base image**:
+```dockerfile
+FROM ghcr.io/ublue-os/bluefin:stable
+```
+
+### Long-term Goal: Modular Architecture
+
+**Experimental migration** to modular architecture using Fedora Silverblue or another bootc base + Bluefin OCI components.
+
+Bluefin refactored (December 2025) to decouple the OS into reusable OCI containers:
+- `ghcr.io/projectbluefin/common:latest` - Core Bluefin personality (ujust, GNOME config, systemd units)
+- `ghcr.io/ublue-os/brew:latest` - Homebrew implementation
+- `ghcr.io/projectbluefin/branding:latest` - Visual assets
+- `ghcr.io/ublue-os/artwork:latest` - Shared art assets
+
+**Target architecture** (multi-stage build):
+```dockerfile
+FROM ghcr.io/projectbluefin/common:latest AS common
+FROM ghcr.io/ublue-os/brew:latest AS brew
+FROM ghcr.io/ublue-os/silverblue:latest
+COPY --from=common /ctx /
+COPY --from=brew /ctx /
+# Custom build scripts and system_files
+```
+
+### Philosophy
+
+- **OS as Infrastructure Code**: Dockerfiles are the new package managers
+- **Composable Components**: Mix and match OCI layers like cloud services
+- **Zero Reinstalls**: `rpm-ostree rebase` to switch entire OS
+- **90+ Day Rollback**: Image history in registry provides long rollback window
+
+### Implementation Approach
+
+**This is NOT a rush migration.** Changes will be made incrementally when requested.
+
+- Repository is experimental/educational, not production-critical
+- VM testing required before any hardware deployment
+- Reference implementation: [bluefin-lts](https://github.com/ublue-os/bluefin-lts/) commit 83d5b68
+- Hardware specs: AMD Ryzen 7 5700U, 32GB RAM, currently running bluefin:stable Fedora 43
+
+### Key Resources
+
+- [Bluefin 2025 Blog](https://docs.projectbluefin.io/blog/bluefin-2025/) - Architecture context and rationale
+- [bluefin-lts](https://github.com/ublue-os/bluefin-lts/) - Reference implementation
+- [Universal Blue Discord](https://discord.gg/WEu6BdFEtp) - Community support
+
+### Repository Strategy
+
+**Single repo, single branch approach:**
+- Make changes directly to `main` branch
+- Test risky changes in VM first (`just build-qcow2 && just run-vm-qcow2`)
+- Deploy to hardware when confident
+- Use `bootc switch` for rollback if needed
+- Accept calculated risk for personal/experimental use
+
+**Why this works:**
+- Real daily usage drives development
+- Simpler than multi-branch/multi-repo strategies
+- bootc provides safety net with rollback capability
+- Matches learning-by-doing philosophy
+
+---
+
 ## Resources & Documentation
 
 - **Bluefin patterns**: https://github.com/ublue-os/bluefin
@@ -958,11 +1016,11 @@ Assisted-by: [Model Name] via [Tool Name]
 Example:
 
 ```text
-Assisted-by: Claude 3.5 Sonnet via GitHub Copilot
+Assisted-by: Claude Sonnet 4.5 via Claude Code
 ```
 
 ---
 
-**Last Updated**: 2025-11-14  
-**Template Version**: greatlem0n-os (Enhanced with comprehensive Copilot instructions)  
-**Maintainer**: Universal Blue Community
+**Last Updated**: 2026-01-01
+**Image**: greatlem0n-os (Custom bootc image with system_files support and modular migration vision)
+**Based On**: Universal Blue finpilot template

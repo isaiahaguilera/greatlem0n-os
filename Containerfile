@@ -2,6 +2,7 @@
 FROM scratch AS ctx
 COPY build /build
 COPY custom /custom
+COPY system_files /system_files
 
 ###############################################################################
 # PROJECT NAME CONFIGURATION
@@ -52,7 +53,7 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
-    /ctx/build/10-build.sh
+    /ctx/build/00-run-all.sh
     
 ### LINTING
 ## Verify final image and contents are correct.

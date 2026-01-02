@@ -13,6 +13,21 @@ set -eoux pipefail
 # shellcheck source=/dev/null
 source /ctx/build/copr-helpers.sh
 
+###############################################################################
+# Copy System Files
+###############################################################################
+echo "::group:: Copy System Files"
+
+# Copy system files structure to root (polkit, udev, etc.)
+if [ -d /ctx/system_files/shared ]; then
+    cp -r /ctx/system_files/shared/* /
+fi
+
+echo "::endgroup::"
+
+###############################################################################
+# Copy Custom Files
+###############################################################################
 echo "::group:: Copy Custom Files"
 
 # Copy Brewfiles to standard location
@@ -29,16 +44,24 @@ cp /ctx/custom/flatpaks/*.preinstall /etc/flatpak/preinstall.d/
 
 echo "::endgroup::"
 
+###############################################################################
+# Install Packages
+###############################################################################
 echo "::group:: Install Packages"
 
 # Install packages using dnf5
 # Example: dnf5 install -y tmux
+
+dnf5 install -y zsh tmux keychain
 
 # Example using COPR with isolated pattern:
 # copr_install_isolated "ublue-os/staging" package-name
 
 echo "::endgroup::"
 
+###############################################################################
+# System Configuration
+###############################################################################
 echo "::group:: System Configuration"
 
 # Enable/disable systemd services
