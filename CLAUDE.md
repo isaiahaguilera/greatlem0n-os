@@ -33,8 +33,10 @@ The AGENTS.md file contains detailed instructions for:
 When user reports changes made outside Claude Code:
 1. User briefly describes what they changed
 2. **Verify** by reading the actual files to confirm changes
-3. Update README "What's Different" section based on verified findings
-4. Update the "Last updated" date
+3. Update README sections based on verified findings:
+   - **"What's Different"**: For OS packages, apps, or system config changes
+   - **"Template Features"**: For build infrastructure or workflow changes
+4. Update the "Last updated" date (for "What's Different" only)
 5. Report back what was found and documented
 
 ### Package Locations

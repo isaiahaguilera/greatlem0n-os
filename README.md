@@ -25,6 +25,16 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 
 *Last updated: 2026-01-01*
 
+## Template Enhancements
+
+Enhancements added beyond the base finpilot template:
+
+- **Optional Build Script Auto-Runner**: `00-run-all.sh` script to automatically execute numbered build scripts in order (see `build/README.md`)
+- **Manual Disk Image Builder**: GitHub Actions workflow to build ISOs and QCOW2 images on demand with artifact downloads or S3 upload
+- **Claude Code Support**: Added CLAUDE.md for Claude Code CLI integration alongside existing AGENTS.md
+
+*The base template already includes: Image signing, validation workflows, Renovate bot, Homebrew/Flatpak integration, and comprehensive AI assistant documentation.*
+
 ## Guided Copilot Mode
 
 Here are the steps to guide copilot to make your own repo, or just use it like a regular image template.

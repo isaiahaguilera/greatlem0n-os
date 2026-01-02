@@ -35,12 +35,12 @@
 - `custom/ujust/README.md` (~line 175)
 - `.github/workflows/ghcr-pruner.yml` (line 22)
 
-### 2. Create "What's Different" section in README
+### 2. Create "What's Different" and "Template Features" sections in README
 
-**CRITICAL**: Add this section near the top of README.md (after the title/intro, before detailed docs):
+**CRITICAL**: Add these sections near the top of README.md (after the title/intro, before detailed docs):
 
 ```markdown
-## What Makes this Raptor Different?
+## What Makes this Image Different?
 
 Here are the changes from [Base Image Name]. This image is based on [Bluefin/Bazzite/Aurora/etc] and includes these customizations:
 
@@ -60,13 +60,24 @@ Here are the changes from [Base Image Name]. This image is based on [Bluefin/Baz
 - Other notable modifications
 
 *Last updated: [date]*
+
+## Template Enhancements
+
+Enhancements added beyond the base template:
+
+- **[List only NEW features added to THIS instance]**
+- Example: Build script auto-runner, disk image builder, additional documentation
+
+*List only additions/improvements made beyond the base finpilot template.
+The base template already includes signing, validation, Renovate, etc.*
 ```
 
-**Maintenance requirement**: 
-- **ALWAYS update this section when you modify packages or configuration**
+**Maintenance requirements**:
+- **"What's Different"**: Update when you modify OS packages, apps, or system configuration
+- **"Template Features"**: Update when you add/modify build infrastructure, workflows, or development tools
 - Keep descriptions brief and user-focused (explain "why", not just "what")
 - Write for typical Linux users, not developers
-- Update the "Last updated" date with each change
+- Update the "Last updated" date on "What's Different" with each OS change
 
 ### 3. Verify copilot instructions are present
 
