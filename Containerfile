@@ -1,3 +1,17 @@
+# greatlem0n-os
+#
+# Build:
+#   podman build -t greatlem0n-os:stable .
+#
+# Inspect (fast - no VM needed):
+#   podman run --rm greatlem0n-os:stable rpm -qa | grep <package>
+#   podman run --rm greatlem0n-os:stable ls /usr/lib/systemd/system/ | grep <service>
+#   podman run --rm -it greatlem0n-os:stable bash
+#
+# Test (slow - builds VM):
+#   just build-qcow2
+#   just run-vm-qcow2
+
 # Allow build scripts to be referenced without being copied into the final image
 FROM scratch AS ctx
 COPY build /build
@@ -9,7 +23,7 @@ COPY system_files /system_files
 ###############################################################################
 # Name: greatlem0n-os
 #
-# IMPORTANT: Change "finpilot" above to your desired project name.
+# IMPORTANT: Change "Name" above to your desired project name.
 # This name should be used consistently throughout the repository in:
 #   - Justfile: export image_name := env("IMAGE_NAME", "your-name-here")
 #   - README.md: # your-name-here (title)
@@ -21,7 +35,9 @@ COPY system_files /system_files
 # to maintain consistency.
 ###############################################################################
 
+###############################################################################
 # Base Image
+###############################################################################
 FROM ghcr.io/ublue-os/bluefin:stable@sha256:c9411d9909708d57d8e87c160a308a4a8c795764fb4beff344340755412b9178
 
 ## Other possible base images include:
@@ -53,7 +69,7 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
-    /ctx/build/00-run-all.sh
+    /ctx/build/build.sh
     
 ### LINTING
 ## Verify final image and contents are correct.

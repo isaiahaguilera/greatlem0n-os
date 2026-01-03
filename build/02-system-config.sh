@@ -3,7 +3,7 @@
 set -eoux pipefail
 
 ###############################################################################
-# Main Build Script
+# System Configuration Script
 ###############################################################################
 # This script follows the @ublue-os/bluefin pattern for build scripts.
 # It uses set -eoux pipefail for strict error handling and debugging.
@@ -45,21 +45,6 @@ cp /ctx/custom/flatpaks/*.preinstall /etc/flatpak/preinstall.d/
 echo "::endgroup::"
 
 ###############################################################################
-# Install Packages
-###############################################################################
-echo "::group:: Install Packages"
-
-# Install packages using dnf5
-# Example: dnf5 install -y tmux
-
-dnf5 install -y zsh tmux keychain
-
-# Example using COPR with isolated pattern:
-# copr_install_isolated "ublue-os/staging" package-name
-
-echo "::endgroup::"
-
-###############################################################################
 # System Configuration
 ###############################################################################
 echo "::group:: System Configuration"
@@ -70,4 +55,4 @@ systemctl enable podman.socket
 
 echo "::endgroup::"
 
-echo "Custom build complete!"
+echo "System Configuration Script complete!"
