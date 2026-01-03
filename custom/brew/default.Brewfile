@@ -10,6 +10,8 @@ brew "eza"        # Modern replacement for ls
 
 # Shell enhancements  
 brew "starship"   # Cross-shell prompt
+brew "fzf"        # Cross-shell fuzzy find search tool
 
 # Utilities
-brew "htop"       # Interactive process viewer
+tap "valkyrie00/bbrew"
+brew "valkyrie00/bbrew/bbrew"

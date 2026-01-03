@@ -316,3 +316,73 @@ format:
     fi
     # Run shfmt on all Bash scripts
     /usr/bin/find . -iname "*.sh" -type f -exec shfmt --write "{}" ';'
+
+# Audit installed tools from a live brew dump against repo-managed lists.
+[group('Utility')]
+audit-brew-dump:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Create a temp working directory inside the repo so it is ignored by git.
+    # This keeps the dump local and makes cleanup predictable.
+    TMPDIR=$(mktemp -p "${PWD}" -d -t _build-brew.XXXXXXXXXX)
+
+    # Always remove the temp directory on exit (success or failure).
+    trap 'rm -rf "${TMPDIR}"' EXIT
+
+    # Dump the current Brew bundle to a temp Brewfile.
+    # --force avoids prompts if the file already exists.
+    brew bundle dump --force --file "${TMPDIR}/Brewfile"
+
+    # Extract Flatpak IDs from the dump and compare to repo preinstall list.
+    rg '^flatpak "' "${TMPDIR}/Brewfile" \
+      | sed -E 's/^flatpak "([^"]+)".*/\1/' \
+      | sort -u > "${TMPDIR}/flatpaks.dump"
+    rg '^\[Flatpak Preinstall ' custom/flatpaks/default.preinstall \
+      | sed -E 's/^\[Flatpak Preinstall ([^]]+)\].*/\1/' \
+      | sort -u > "${TMPDIR}/flatpaks.repo"
+
+    section() {
+      echo
+      echo "== $1 =="
+    }
+
+    section "Flatpaks missing from image (custom/flatpaks/default.preinstall)"
+    comm -23 "${TMPDIR}/flatpaks.dump" "${TMPDIR}/flatpaks.repo" > "${TMPDIR}/flatpaks.missing"
+    if [[ -s "${TMPDIR}/flatpaks.missing" ]]; then
+      cat "${TMPDIR}/flatpaks.missing"
+    else
+      echo "(none)"
+    fi
+
+    # Extract brew/cask packages from the dump and compare to repo Brewfiles.
+    rg '^(brew|cask) "' "${TMPDIR}/Brewfile" \
+      | sed -E 's/^(brew|cask) "([^"]+)".*/\2/' \
+      | sort -u > "${TMPDIR}/brew.dump"
+    rg --no-filename '^(brew|cask) "' custom/brew/*.Brewfile \
+      | sed -E 's/^(brew|cask) "([^"]+)".*/\2/' \
+      | sort -u > "${TMPDIR}/brew.repo"
+
+    section "Brew/cask missing from image (custom/brew/*.Brewfile)"
+    comm -23 "${TMPDIR}/brew.dump" "${TMPDIR}/brew.repo" > "${TMPDIR}/brew.missing"
+    if [[ -s "${TMPDIR}/brew.missing" ]]; then
+      cat "${TMPDIR}/brew.missing"
+    else
+      echo "(none)"
+    fi
+
+    # Extract VS Code extensions from the dump and compare to repo Brewfiles.
+    rg '^vscode "' "${TMPDIR}/Brewfile" \
+      | sed -E 's/^vscode "([^"]+)".*/\1/' \
+      | sort -u > "${TMPDIR}/vscode.dump"
+    rg --no-filename '^vscode "' custom/brew/*.Brewfile \
+      | sed -E 's/^vscode "([^"]+)".*/\1/' \
+      | sort -u > "${TMPDIR}/vscode.repo"
+
+    section "VS Code extensions missing from image (custom/brew/*.Brewfile)"
+    comm -23 "${TMPDIR}/vscode.dump" "${TMPDIR}/vscode.repo" > "${TMPDIR}/vscode.missing"
+    if [[ -s "${TMPDIR}/vscode.missing" ]]; then
+      cat "${TMPDIR}/vscode.missing"
+    else
+      echo "(none)"
+    fi

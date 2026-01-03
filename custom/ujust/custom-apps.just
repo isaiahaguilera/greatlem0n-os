@@ -26,6 +26,13 @@ install-fonts:
     echo "Installing fonts via Homebrew..."
     brew bundle --file /usr/share/ublue-os/homebrew/fonts.Brewfile
 
+# Install vscode extensions via Homebrew
+[group('Apps')]
+install-vscode-extensions:
+    #!/usr/bin/env bash
+    echo "Installing vscode extensions via Homebrew..."
+    brew bundle --file /usr/share/ublue-os/homebrew/vscode.Brewfile
+
 # Install all Brewfiles at once
 [group('Apps')]
 install-all-brew:
@@ -34,6 +41,7 @@ install-all-brew:
     brew bundle --file /usr/share/ublue-os/homebrew/default.Brewfile
     brew bundle --file /usr/share/ublue-os/homebrew/development.Brewfile
     brew bundle --file /usr/share/ublue-os/homebrew/fonts.Brewfile
+    brew bundle --file /usr/share/ublue-os/homebrew/vscode.Brewfile
 
 # Install JetBrains Toolbox for managing JetBrains IDEs
 [group('Apps')]

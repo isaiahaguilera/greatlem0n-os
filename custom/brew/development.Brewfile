@@ -24,3 +24,5 @@
 # Debugging and profiling
 # brew "gdb"            # GNU debugger
 # brew "valgrind"       # Memory debugging tool
+brew "shellcheck"       # Shell script analysis tool    
+
