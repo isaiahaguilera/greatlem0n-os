@@ -1,6 +1,6 @@
 # greatlem0n-os
 
-[![Build container image](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml/badge.svg)](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml)
+[![Stable Image](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml/badge.svg)](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml)
 
 A custom bootc operating system image based on [Universal Blue](https://universal-blue.org/) and [Bluefin](https://projectbluefin.io). Built from the finpilot template with system configuration management and remote desktop optimizations.
 
