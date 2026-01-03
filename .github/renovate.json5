@@ -1,5 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  // Repository to process (required for self-hosted mode)
+  "platform": "github",
+  "repositories": ["isaiahaguilera/greatlem0n-os"],
+
   "extends": [
     "config:best-practices",
   ],
@@ -30,6 +35,8 @@
       ],
       datasourceTemplate: 'docker',
       versioningTemplate: 'docker',
+      // No version captured in regex, so assume latest tag
+      currentValueTemplate: 'latest',
     },
   ],
 
