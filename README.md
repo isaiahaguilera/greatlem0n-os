@@ -19,7 +19,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
   - Eliminates "permission denied" errors for remote admin users
 
 ### Added Packages (Build-time)
-- Core system packages and services (see `build/10-build.sh`)
+- Core system packages and services (see `build/02-system-config.sh` and `build/04-packages.sh`)
 - Visual Studio Code from the official Microsoft repository for development work
 
 ### Added Applications (Runtime)
@@ -37,7 +37,8 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 Custom enhancements added to this image:
 
 - **System Files Management**: Universal Blue pattern for polkit/udev rules (see `system_files/`)
-- **Build Script Auto-Runner**: `00-run-all.sh` executes numbered scripts automatically (see `build/README.md`)
+- **Explicit Build Script Runner**: `build.sh` declares scripts in explicit order for clarity and control (Bluefin pattern)
+- **Modular Architecture Support**: `Containerfile.experimental` for testing modular OCI composition
 - **Manual Disk Image Builder**: GitHub Actions workflow for on-demand ISO and QCOW2 builds
 - **AI Assistant Integration**: Comprehensive AGENTS.md and CLAUDE.md for development guidance
 
@@ -79,8 +80,9 @@ Custom enhancements added to this image:
 - See [custom/ujust/README.md](custom/ujust/README.md) for details
 
 ### Build Scripts
-- Modular numbered scripts (10-, 20-, 30-) run in order
-- Example scripts included for third-party repositories and desktop replacement
+- Explicit script runner (`build.sh`) for clarity and control
+- Organized scripts: system config (02), packages (04), applications (11+)
+- Example scripts in `build/examples/` for third-party repositories and desktop replacement
 - Helper functions for safe COPR usage
 - See [build/README.md](build/README.md) for details
 
@@ -88,7 +90,7 @@ Custom enhancements added to this image:
 
 ### Customize the Image
 
-Add build-time packages in `build/10-build.sh`:
+Add build-time packages in `build/04-packages.sh`:
 ```bash
 dnf5 install -y package-name
 ```
