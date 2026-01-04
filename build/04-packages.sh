@@ -23,6 +23,7 @@ echo "::group:: Install Packages"
 
 FEDORA_PACKAGES=(
     zsh
+    fish
     tmux
     keychain
     git
