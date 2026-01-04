@@ -29,4 +29,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
           LOG_LEVEL: 'debug'
-          RENOVATE_AUTODISCOVER: 'true'
+          RENOVATE_REPOSITORIES: '${{ github.repository }}'
