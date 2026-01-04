@@ -10,7 +10,13 @@ on:
     branches:
       - main
     paths-ignore:
-      - '**/README.md'
+      - '**.md'
+      - '.github/renovate.*'
+      - '.github/workflows/renovate.yml'
+      - '.github/workflows/validate-*.yml'
+      - '.github/workflows/clean.yml'
+      - 'LICENSE'
+      - '.gitignore'
   workflow_dispatch:
 
 env:

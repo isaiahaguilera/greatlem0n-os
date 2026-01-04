@@ -4,6 +4,7 @@
     'config:best-practices',
   ],
   rebaseWhen: 'never',
+  prConcurrentLimit: 20,
 
   customManagers: [
     {
