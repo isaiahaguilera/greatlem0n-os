@@ -1,6 +1,6 @@
 # greatlem0n-os
 
-[![Stable Image](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml/badge.svg)](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml)
+[![Build Stable Image](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml/badge.svg)](https://github.com/isaiahaguilera/greatlem0n-os/actions/workflows/build.yml)
 
 A custom bootc operating system image based on [Universal Blue](https://universal-blue.org/) and [Bluefin](https://projectbluefin.io). Built from the finpilot template with system configuration management and remote desktop optimizations.
 
@@ -31,7 +31,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`
 - `system_files/shared/etc/udev/rules.d/90-wheel-hardware-access.rules`
 
-*Last updated: 2026-01-03*
+*Last updated: 2026-01-04*
 
 ## Build Features
 
