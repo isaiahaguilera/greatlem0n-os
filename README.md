@@ -17,6 +17,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - **Hardware Access for Remote Sessions**: Udev rules granting wheel users direct hardware access over RDP/SSH
   - WiFi/Bluetooth toggles, USB devices, video capture, block devices, GPIO, DRM/GPU access
   - Eliminates "permission denied" errors for remote admin users
+- **Container Signature Policy**: Require sigstore signatures for `:stable` pulls using the repo public key
 - **Fastfetch Branding**: Custom logo directory with shuffle enabled for fastfetch output
 
 ### Added Packages (Build-time)
@@ -33,6 +34,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/etc/udev/rules.d/90-wheel-hardware-access.rules`
 - `system_files/shared/etc/ublue-os/fastfetch.json`
 - `system_files/shared/usr/share/ublue-os/bluefin-logos/symbols_custom/TwoThumbsUpLemon.ansi`
+- `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
 
 *Last updated: 2026-01-05*
 

@@ -34,6 +34,9 @@ echo "Starting build process..."
 # System configuration - copy files, enable services, etc.
 /ctx/build/02-system-config.sh
 
+# Enforce container signature policy for stable images
+/ctx/build/03-patch-containers-policy.sh
+
 # Package installation and removal
 /ctx/build/04-packages.sh
 
