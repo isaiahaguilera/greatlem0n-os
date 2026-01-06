@@ -24,10 +24,11 @@
 ```
 ├── Containerfile          # Main build definition (FROM image, /opt config)
 ├── Justfile              # Local build automation (image name, build commands)
-├── build/                # Build-time scripts (10-build.sh, 20-chrome.sh, etc.)
-│   ├── 10-build.sh      # Main build script (copy custom files, install packages)
-│   ├── 20-*.sh.example  # Example third-party repos (rename to use)
-│   ├── 30-*.sh.example  # Example desktop replacement (rename to use)
+├── build/                # Build-time scripts (numbered, run via build.sh)
+│   ├── build.sh         # Main runner (explicit order)
+│   ├── 00-run-all.sh    # Optional auto-discovery runner
+│   ├── NN-*.sh          # Build steps (numbered prefix for order)
+│   ├── examples/        # Example scripts (rename to use)
 │   ├── copr-helpers.sh  # Helper functions for COPR repositories
 │   └── README.md        # Build scripts documentation
 ├── system_files/         # System-level configs (polkit, udev, etc.) - Universal Blue pattern
@@ -91,7 +92,7 @@
 - Always `-y` flag for non-interactive
 - COPRs: enable → install → **DISABLE** (critical, prevents repo persistence)
 - Use `copr_install_isolated` function pattern
-- Numbered scripts: `10-build.sh`, `20-chrome.sh`, `30-cosmic.sh`
+- Numbered scripts with a numeric prefix (e.g., `03-...`, `11-...`) to indicate order (no fixed ranges)
 - Check @bootc-dev for container best practices
 
 ### Branch Strategy
@@ -118,13 +119,13 @@ This section provides clear guidance on where to add different types of packages
 
 ### System Packages (dnf5 - Build-time)
 
-**Location**: `build/10-build.sh`
+**Location**: `build/04-packages.sh`
 
 System packages are installed at build-time and baked into the container image. Use `dnf5` exclusively.
 
 **Example**:
 ```bash
-# In build/10-build.sh
+# In build/04-packages.sh
 dnf5 install -y vim git htop neovim tmux
 ```
 
@@ -138,12 +139,12 @@ dnf5 install -y vim git htop neovim tmux
 - Always use `dnf5` (never `dnf`, `yum`, or `rpm-ostree`)
 - Always add `-y` flag for non-interactive installs
 - For COPR repositories, use `copr_install_isolated` pattern and disable after use
-- For third-party repos, see example scripts: `build/20-onepassword.sh.example`
+- For third-party repos, see example scripts: `build/examples/20-onepassword.sh.example`
 
 **Script Naming Convention**:
-- `10-build.sh` - Main build script (always runs first)
-- `20-*.sh` - Additional scripts (run in numerical order)
-- `30-*.sh` - Desktop environment changes
+- `NN-<description>.sh` - Numbered prefix for order; name describes purpose
+- Prefer zero-padded numbers (e.g., `03-`, `11-`) to keep lexical order stable
+- Order is defined in `build/build.sh` (explicit) or `build/00-run-all.sh` (auto-discovery)
 - `.example` suffix - Rename to `.sh` to activate
 
 ### Homebrew Packages (Brew - Runtime)
@@ -267,18 +268,18 @@ KERNEL=="rfkill", SUBSYSTEM=="misc", GROUP="wheel", MODE="0664"
 
 | Request | Action | Location |
 |---------|--------|----------|
-| Add package (build-time) | `dnf5 install -y pkg` | `build/10-build.sh` |
+| Add package (build-time) | `dnf5 install -y pkg` | `build/04-packages.sh` |
 | Add system config (polkit/udev) | Mirror filesystem structure | `system_files/shared/etc/` |
 | Add package (runtime) | `brew "pkg"` | `custom/brew/default.Brewfile` |
 | Add GUI app | `[Flatpak Preinstall org.app.id]` | `custom/flatpaks/default.preinstall` |
 | Add user command | Create shortcut (NO dnf5) | `custom/ujust/*.just` |
-| Add third-party repo | Use example scripts | `build/20-*.sh.example` (rename) |
-| Replace desktop | Use example script | `build/30-cosmic-desktop.sh.example` |
+| Add third-party repo | Use example scripts | `build/examples/` (rename) |
+| Replace desktop | Use example script | `build/examples/30-cosmic-desktop.sh.example` |
 | Switch base image | Update FROM line | `Containerfile` line 24 |
 | Test locally | `just build && just build-qcow2 && just run-vm-qcow2` | Terminal |
 | Deploy (production) | `sudo bootc switch ghcr.io/user/repo:stable` | Terminal |
-| Enable service | `systemctl enable service.name` | `build/10-build.sh` |
-| Add COPR | enable → install → **DISABLE** | `build/10-build.sh` |
+| Enable service | `systemctl enable service.name` | `build/02-system-config.sh` |
+| Add COPR | enable → install → **DISABLE** | `build/04-packages.sh` |
 | Validate changes | Automatic on PR | `.github/workflows/validate-*.yml` |
 
 ---
@@ -304,30 +305,23 @@ FROM quay.io/centos-bootc/centos-bootc:stream10  # Enterprise
 
 ### 2. Build Scripts (`build/`)
 
-**Pattern**: Numbered files (`10-build.sh`, `20-chrome.sh`, `30-cosmic.sh`) run in order.
+**Pattern**: Numbered files run in explicit order via `build/build.sh` (or auto-discovery via `build/00-run-all.sh`). Use numeric prefixes to control order; no fixed ranges.
 
-**Example - `build/10-build.sh`**:
+**Example - `build/04-packages.sh`**:
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
 # Install packages
 dnf5 install -y vim git htop neovim
-
-# Enable services
-systemctl enable podman.socket
-
-# Download binaries
-curl -L https://example.com/tool -o /usr/local/bin/tool
-chmod +x /usr/local/bin/tool
 ```
 
-**Example - COPR pattern** (see `build/20-onepassword.sh`):
+**Example - COPR pattern** (see `build/examples/20-onepassword.sh.example`):
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
-source /ctx/copr-install-functions.sh
+source /ctx/build/copr-helpers.sh
 
 # Chrome
 dnf config-manager addrepo --from-repofile=https://dl.google.com/linux/linux_signing_key.pub
@@ -337,7 +331,7 @@ dnf5 install -y google-chrome-stable
 copr_install_isolated username/repo package-name
 ```
 
-**Example - Desktop swap** (see `build/30-cosmic.sh`):
+**Example - Desktop swap** (see `build/examples/30-cosmic-desktop.sh.example`):
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -352,7 +346,7 @@ systemctl set-default graphical.target
 
 **CRITICAL**: Use `copr_install_isolated` function. Always disable COPRs.
 
-**Example scripts**: See `build/20-onepassword.sh.example` and `build/30-cosmic-desktop.sh.example` for complete working examples.
+**Example scripts**: See `build/examples/20-onepassword.sh.example` and `build/examples/30-cosmic-desktop.sh.example` for complete working examples.
 
 ### 3. Homebrew (`custom/brew/`)
 
@@ -497,7 +491,7 @@ COSIGN_PASSWORD="" cosign generate-key-pair
 8. **ALWAYS** confirm with user before deviating from @ublue-os/bluefin patterns
 9. **ALWAYS** run shellcheck/YAML validation before committing
 10. **ALWAYS** update bootc switch URL in `iso/iso.toml` to match repo
-11. **ALWAYS** follow numbered script convention: `10-*.sh`, `20-*.sh`, `30-*.sh`
+11. **ALWAYS** use numbered prefixes for build scripts and keep execution order explicit in `build/build.sh` (or use `build/00-run-all.sh` consistently)
 12. **ALWAYS** check example scripts before creating new patterns (`.example` files in `build/`)
 13. **ALWAYS** validate that new Flatpak IDs exist on Flathub before adding
 14. **NEVER** modify validation workflows without understanding impact on PR checks
@@ -531,7 +525,7 @@ COSIGN_PASSWORD="" cosign generate-key-pair
 
 **Use case**: Installing Google Chrome, 1Password, VS Code, etc.
 
-**Example**: See `build/20-onepassword.sh.example`
+**Example**: See `build/examples/20-onepassword.sh.example`
 
 **Steps**:
 1. Add GPG key (if required)
@@ -561,7 +555,7 @@ rm -f /etc/yum.repos.d/google-chrome.repo
 
 **Use case**: Installing packages from Fedora COPR (community repos)
 
-**Example**: See `build/copr-helpers.sh` and `build/30-cosmic-desktop.sh.example`
+**Example**: See `build/copr-helpers.sh` and `build/examples/30-cosmic-desktop.sh.example`
 
 **Always use `copr_install_isolated` function**:
 ```bash
@@ -581,7 +575,7 @@ copr_install_isolated "ryanabx/cosmic-epoch" \
 
 **Use case**: Swap GNOME for KDE, COSMIC, etc.
 
-**Example**: See `build/30-cosmic-desktop.sh.example`
+**Example**: See `build/examples/30-cosmic-desktop.sh.example`
 
 **Steps**:
 1. Remove old desktop: `dnf5 remove -y gnome-shell ...`
@@ -591,7 +585,7 @@ copr_install_isolated "ryanabx/cosmic-epoch" \
 
 ### Pattern 4: Enabling System Services
 
-**Location**: `build/10-build.sh`
+**Location**: `build/02-system-config.sh`
 
 ```bash
 # Enable service
@@ -686,7 +680,7 @@ RUN rm /opt && mkdir /opt
 - Cross-platform builds require additional setup
 
 ### Custom Build Functions
-See `build/copr-install-functions.sh` for reusable patterns:
+See `build/copr-helpers.sh` for reusable patterns:
 - `copr_install_isolated` - Enable COPR, install packages, disable COPR
 - Follow @ublue-os/bluefin conventions exactly
 
@@ -713,10 +707,7 @@ Rechunker optimizes container layer distribution for better resumability.
 
 1. **Base Image** - Pulls base image specified in `Containerfile` FROM line
 2. **Context Stage** - Mounts `build/` and `custom/` directories
-3. **Build Scripts** - Runs scripts in `build/` directory in numerical order:
-   - `10-build.sh` - Always runs first (copies custom files, installs packages)
-   - `20-*.sh` - Additional scripts (if present and not .example)
-   - `30-*.sh` - More scripts (if present and not .example)
+3. **Build Scripts** - Runs scripts listed in `build/build.sh` (explicit order) or `build/00-run-all.sh` (auto-discovery)
 4. **Container Lint** - Validates final image with `bootc container lint`
 5. **Push to Registry** - Uploads to GitHub Container Registry (ghcr.io)
 
@@ -782,7 +773,7 @@ Rechunker optimizes container layer distribution for better resumability.
 
 When user requests customization, check in this order:
 
-1. **`build/10-build.sh`** (50%) - Build-time packages, services, system configs
+1. **`build/*.sh`** (50%) - Build-time packages, services, system configs
 2. **`custom/brew/`** (20%) - Runtime CLI tools, dev environments
 3. **`custom/ujust/`** (15%) - User convenience commands
 4. **`custom/flatpaks/`** (5%) - GUI applications
