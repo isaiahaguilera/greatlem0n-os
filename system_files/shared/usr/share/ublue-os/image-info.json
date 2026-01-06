@@ -1,0 +1,9 @@
+{
+  "image-name": "bluefin",
+  "image-flavor": "main",
+  "image-vendor": "ublue-os",
+  "image-ref": "ostree-image-signed:docker://ghcr.io/ublue-os/bluefin",
+  "image-tag":"stable",
+  "base-image-name": "silverblue",
+  "fedora-version": "43"
+}
