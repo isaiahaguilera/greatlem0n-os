@@ -100,6 +100,16 @@ Grants wheel users direct hardware access when connecting via RDP/SSH. Default `
 
 **Companion file**: Works with `90-remote-desktop-permissions.rules` for complete remote desktop functionality.
 
+### Fastfetch Branding
+
+**`fastfetch.json`** - Custom fastfetch logo configuration
+
+Sets a custom logo directory and enables random logo selection:
+
+- Config: `system_files/shared/etc/ublue-os/fastfetch.json`
+- Logo assets: `system_files/shared/usr/share/ublue-os/bluefin-logos/symbols_custom/`
+- Example logo: `TwoThumbsUpLemon.ansi`
+
 ## Migration Note
 
 The `custom/` directory is still used for Brewfiles, Flatpaks, and ujust commands. Eventually, those may migrate to `system_files/` to fully align with Universal Blue patterns, but for now:

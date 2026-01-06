@@ -17,6 +17,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - **Hardware Access for Remote Sessions**: Udev rules granting wheel users direct hardware access over RDP/SSH
   - WiFi/Bluetooth toggles, USB devices, video capture, block devices, GPIO, DRM/GPU access
   - Eliminates "permission denied" errors for remote admin users
+- **Fastfetch Branding**: Custom logo directory with shuffle enabled for fastfetch output
 
 ### Added Packages (Build-time)
 - Core system packages and services (see `build/02-system-config.sh` and `build/04-packages.sh`)
@@ -30,8 +31,10 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 ### Configuration Files
 - `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`
 - `system_files/shared/etc/udev/rules.d/90-wheel-hardware-access.rules`
+- `system_files/shared/etc/ublue-os/fastfetch.json`
+- `system_files/shared/usr/share/ublue-os/bluefin-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 
-*Last updated: 2026-01-04*
+*Last updated: 2026-01-05*
 
 ## Build Features
 
