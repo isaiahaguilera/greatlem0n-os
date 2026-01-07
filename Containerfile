@@ -41,13 +41,13 @@ COPY system_files /system_files
 FROM ghcr.io/ublue-os/bluefin:stable@sha256:26efd0df5ad4643b8d37790f2362d5796e594b2bc7ee44c48ed149f8f1bbba62
 
 ## Other possible base images include:
-# FROM ghcr.io/ublue-os/bazzite:latest
-# FROM ghcr.io/ublue-os/bluefin-nvidia:stable
+# FROM ghcr.io/ublue-os/bazzite:latest@sha256:71a51c4faf8cec6401b8c99ab319d1e7705a77f2253817710093eb3b436132cd
+# FROM ghcr.io/ublue-os/bluefin-nvidia:stable@sha256:23a6ec0dc3a2f887d30eef4a34ac6a14c2c7644b09ddcd0f7a4a6ef09b938a60
 # 
 # ... and so on, here are more base images
 # Universal Blue Images: https://github.com/orgs/ublue-os/packages
-# Fedora base image: quay.io/fedora/fedora-bootc:41
-# CentOS base images: quay.io/centos-bootc/centos-bootc:stream10
+# Fedora base image: quay.io/fedora/fedora-bootc:41@sha256:8422f122a1567759c5dd5dcda2007e0ff8c01c1dfd67c4146364196c8e078e4c
+# CentOS base images: quay.io/centos-bootc/centos-bootc:stream10@sha256:eecf595823c3f85d86912fec95e27899248c5271e4bd9fd23c626d0ebdfec053
 
 ### /opt
 ## Some bootable images, like Fedora, have /opt symlinked to /var/opt, in order to
