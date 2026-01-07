@@ -47,6 +47,8 @@ jq --arg image "$IMAGE_REFERENCE" \
 # Atomically replace the policy file
 # Using mv ensures the file is updated atomically (no partial writes)
 mv "$TMP_POLICY" "$POLICY_FILE"
+chown root:root "$POLICY_FILE"
+chmod 0644 "$POLICY_FILE"
 
 echo "Container signature policy configured successfully"
 echo "Stable images will require valid signatures using: $PUBLIC_KEY_PATH"
