@@ -1,9 +1,20 @@
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "display": {
-    "separator": "  ",
+    "key": {
+      // "width": 18
+    },
+    "separator": " 󰑃 ",
     "color": {
-      "keys": "38;2;87;160;198"
+      "keys": "#FFE600",
+      "separator": "#7BD600"
+    },
+    "percent": {
+      "color": {
+        "green": "#7BD600",
+        "yellow": "#FFE600",
+        "red": "#D61D1A"
+      }
     }
   },
   "modules": [
@@ -11,42 +22,42 @@
       "type": "title",
       "key": "",
       "color": {
-        "user": "38;2;87;160;198",
-        "at": "white",
-        "host": "bright_green"
+        "user": "#7BD600",
+        "at": "#FFE600",
+        "host": "#00D9FF"
       }
     },
     "break",
     {
       "type": "command",
-      "key": "󱋩",
+      "key": "  OS",
       "text": "/usr/bin/greatlem0n-image-info.sh"
     },
     {
       "type": "os",
-      "key": "󱍢",
+      "key": "󱍢  Base",
       "format": "{pretty-name}"
     },
     {
       "type": "kernel",
-      "key": "",
+      "key": "  Kernel",
       "format": "{1} {2}"
     },
     {
       "type": "uptime",
-      "key": "󰅐"
+      "key": "󰅐  Uptime"
     },
     {
       "type": "command",
-      "key": "󰔠",
-      "text": "date -d$(ls -alct /var/log --time-style=full-iso|tail -1|awk '{print $6}') +'Forged on %b %d %G'",
+      "key": "󰔠  Forged",
+      "text": "date -d$(ls -alct /var/log --time-style=full-iso|tail -1|awk '{print $6}') +'on %b %d %G'",
       "shell": "/bin/bash"
     },
     "break",
     {
       "type": "command",
       "key": "󱍢",
-      "keyColor": "#0066cc",
+      "keyColor": "#00D9FF",
       "text": "cat /usr/share/ublue-os/fastfetch-user-count",
       "shell": "/bin/bash",
       "format": "Murder Chickens: {1} (weekly)"
@@ -54,66 +65,69 @@
     {
       "type": "command",
       "key": "",
-      "keyColor": "#ff5c00",
+      "keyColor": "#00D9FF",
       "text": "cat /usr/share/ublue-os/bazaar-install-count",
       "shell": "/bin/bash",
       "format": "Bazaar Installs: {1} (weekly)"
     },
     "break",
-    {
+   /*  {
       "type": "host",
-      "key": "󰾰"
-    },
+      "key": "󰾰  Hardware",
+      "format": "{2}"
+    }, */
     {
       "type": "cpu",
-      "key": "󰻠"
+      "key": "󰻠  CPU"
     },
     {
       "type": "gpu",
-      "key": "󰍛"
+      "key": "󰍛  GPU"
     },
     {
       "type": "memory",
-      "key": "󰧑"
+      "key": "󰧑  Memory"
     },
     {
       "type": "disk",
-      "key": "",
+      "key": "  Disk",
       "hideFS": "overlay"
     },
     {
       "type": "display",
-      "key": "󰍹"
+      "key": "󰍹  Display"
     },
     {
       "type": "battery",
-      "key": ""
+      "key": "  Battery"
     },
     {
       "type": "gamepad",
-      "key": "󰖺"
+      "key": "󰖺  Gamepad"
     },
     "break",
     {
       "type": "de",
-      "key": "󰕮"
+      "key": "󰕮  DE"
     },
     {
       "type": "wm",
-      "key": ""
+      "key": "  WM"
     },
     {
       "type": "shell",
-      "key": ""
+      "key": "  Shell"
     },
     {
       "type": "terminal",
-      "key": ""
+      "key": "  Terminal"
     },
     {
       "type": "packages",
-      "key": "󰏖",
-      "disabled": ["rpm"]
+      "key": "󰏖  Packages",
+      "disabled": [
+        "rpm"
+      ]
     },
     "break",
     {

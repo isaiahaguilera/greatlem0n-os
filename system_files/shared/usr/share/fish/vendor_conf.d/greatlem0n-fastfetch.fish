@@ -1,8 +1,3 @@
-# shellcheck shell=bash
-unalias neofetch 2>/dev/null
-unalias neowofetch 2>/dev/null
-unalias fastfetch 2>/dev/null
-
 alias neofetch='greatlem0n-fastfetch'
 alias neowofetch='greatlem0n-fastfetch'
 alias fastfetch='greatlem0n-fastfetch'

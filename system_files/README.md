@@ -103,10 +103,16 @@ Grants wheel users direct hardware access when connecting via RDP/SSH. Default `
 ### Fastfetch Branding
 
 **`fastfetch.json`** - Custom fastfetch logo configuration
+**`fastfetch.jsonc`** - Default fastfetch layout, labels, and colors
 
 Sets a custom logo directory and enables random logo selection:
 
 - Config: `system_files/shared/etc/greatlem0n-os/fastfetch.json`
+- Layout: `system_files/shared/usr/share/greatlem0n-os/fastfetch.jsonc`
+- Wrapper: `system_files/shared/usr/bin/greatlem0n-fastfetch`
+- Bling helper: `system_files/shared/usr/bin/greatlem0n-bling-fastfetch`
+- Shell aliases: `system_files/shared/etc/profile.d/99-greatlem0n-fastfetch.sh`
+- Fish aliases: `system_files/shared/usr/share/fish/vendor_conf.d/greatlem0n-fastfetch.fish`
 - Logo assets: `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/`
 - Example logo: `TwoThumbsUpLemon.ansi`
 
