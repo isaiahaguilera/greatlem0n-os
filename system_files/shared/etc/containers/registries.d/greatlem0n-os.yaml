@@ -1,0 +1,7 @@
+#
+# Sigstore attachment configuration for ghcr.io/isaiahaguilera/greatlem0n-os.
+# Needed so rpm-ostree/bootc can locate cosign signatures during updates.
+#
+docker:
+  ghcr.io/isaiahaguilera/greatlem0n-os:
+    use-sigstore-attachments: true
