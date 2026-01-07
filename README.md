@@ -32,11 +32,11 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 ### Configuration Files
 - `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`
 - `system_files/shared/etc/udev/rules.d/90-wheel-hardware-access.rules`
-- `system_files/shared/etc/ublue-os/fastfetch.json`
-- `system_files/shared/usr/share/ublue-os/bluefin-logos/symbols_custom/TwoThumbsUpLemon.ansi`
+- `system_files/shared/etc/greatlem0n-os/fastfetch.json`
+- `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 - `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
 
-*Last updated: 2026-01-05*
+*Last updated: 2026-01-06*
 
 ## Build Features
 

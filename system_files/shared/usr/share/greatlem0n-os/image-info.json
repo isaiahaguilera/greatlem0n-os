@@ -1,7 +1,7 @@
 {
   "image-name": "greatlem0n-os",
   "image-flavor": "main",
-  "image-vendor": "ublue-os",
+  "image-vendor": "greatlem0n-os",
   "image-ref": "ostree-image-signed:docker://ghcr.io/isaiahaguilera/greatlem0n-os:stable",
   "image-tag":"stable",
   "base-image-name": "silverblue",

@@ -106,8 +106,8 @@ Grants wheel users direct hardware access when connecting via RDP/SSH. Default `
 
 Sets a custom logo directory and enables random logo selection:
 
-- Config: `system_files/shared/etc/ublue-os/fastfetch.json`
-- Logo assets: `system_files/shared/usr/share/ublue-os/bluefin-logos/symbols_custom/`
+- Config: `system_files/shared/etc/greatlem0n-os/fastfetch.json`
+- Logo assets: `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/`
 - Example logo: `TwoThumbsUpLemon.ansi`
 
 ## Migration Note
