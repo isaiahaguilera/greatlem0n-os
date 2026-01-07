@@ -17,7 +17,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - **Hardware Access for Remote Sessions**: Udev rules granting wheel users direct hardware access over RDP/SSH
   - WiFi/Bluetooth toggles, USB devices, video capture, block devices, GPIO, DRM/GPU access
   - Eliminates "permission denied" errors for remote admin users
-- **Container Signature Policy**: Require sigstore signatures for `:stable` pulls using the repo public key
+- **Container Signature Policy**: Require sigstore signatures for `ghcr.io/isaiahaguilera/greatlem0n-os` pulls using the repo public key
 - **Fastfetch Branding**: Custom logo directory with shuffle enabled for fastfetch output
 
 ### Added Packages (Build-time)
@@ -36,7 +36,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 - `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
 
-*Last updated: 2026-01-06*
+*Last updated: 2026-01-07*
 
 ## Build Features
 
