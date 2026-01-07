@@ -21,10 +21,16 @@ LOGO_DIRECTORY="$(get_config '."logo-directory"' "/usr/share/greatlem0n-os/fastf
 DEFAULT_THEME="$(get_config '."default-theme"' "slate")"
 export DEFAULT_THEME
 
-if [ "$SHUFFLE_LOGO" == "true" ] ; then
-  FETCH_LOGO="$(find "$LOGO_DIRECTORY" -type f | shuf -n 1)"
-  fastfetch --logo "$FETCH_LOGO" --color "$(greatlem0n-bling-fastfetch)" --config "${FASTFETCH_CONFIG}" "${@}"
-else
-  fastfetch --color "$(greatlem0n-bling-fastfetch)" --config "${FASTFETCH_CONFIG}" "${@}"
+bling_args=()
+# Default off: keep config-defined colors. Set FASTFETCH_USE_BLING=1 to enable.
+# bling_args=(--color "$(greatlem0n-bling-fastfetch)")
+if [ "${FASTFETCH_USE_BLING:-0}" = "1" ] ; then
+  bling_args=(--color "$(greatlem0n-bling-fastfetch)")
 fi
 
+if [ "$SHUFFLE_LOGO" == "true" ] ; then
+  FETCH_LOGO="$(find "$LOGO_DIRECTORY" -type f | shuf -n 1)"
+  fastfetch --logo "$FETCH_LOGO" "${bling_args[@]}" --config "${FASTFETCH_CONFIG}" "${@}"
+else
+  fastfetch "${bling_args[@]}" --config "${FASTFETCH_CONFIG}" "${@}"
+fi

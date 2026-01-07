@@ -19,7 +19,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
   - Eliminates "permission denied" errors for remote admin users
 - **Container Signature Policy**: Require sigstore signatures for `ghcr.io/isaiahaguilera/greatlem0n-os` pulls using the repo public key
 - **Sigstore Registry Attachments**: Enable cosign signature discovery for `ghcr.io/isaiahaguilera/greatlem0n-os`
-- **Fastfetch Branding**: Custom logo directory with shuffle enabled, labeled key layout + percent palette, plus `/usr/bin` wrapper + shell/fish aliases
+- **Fastfetch Branding**: Custom logo directory with shuffle enabled, labeled key layout + percent palette, plus `/usr/bin` wrapper + shell/fish aliases (GNOME accent “bling” now opt-in)
 
 ### Added Packages (Build-time)
 - Core system packages and services (see `build/02-system-config.sh` and `build/04-packages.sh`)
@@ -38,8 +38,8 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/usr/share/greatlem0n-os/fastfetch.jsonc`
 - `system_files/shared/usr/bin/greatlem0n-fastfetch`
 - `system_files/shared/usr/bin/greatlem0n-bling-fastfetch`
-- `system_files/shared/etc/profile.d/99-greatlem0n-fastfetch.sh`
-- `system_files/shared/usr/share/fish/vendor_conf.d/greatlem0n-fastfetch.fish`
+- `system_files/shared/etc/profile.d/ublue-fastfetch.sh`
+- `system_files/shared/usr/share/fish/vendor_conf.d/ublue-fastfetch.fish`
 - `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 - `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
 
