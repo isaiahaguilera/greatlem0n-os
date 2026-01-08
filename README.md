@@ -24,6 +24,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 ### Added Packages (Build-time)
 - Core system packages and services (see `build/02-system-config.sh` and `build/04-packages.sh`)
 - Visual Studio Code from the official Microsoft repository for development work
+- Ghostty terminal from the `scottames/ghostty` COPR
 
 ### Added Applications (Runtime)
 - **CLI Tools (Homebrew)**: Brewfiles for development tools, fonts, and utilities (see `custom/brew/`). Includes fzf, shellcheck, and bbrew.
@@ -43,7 +44,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 - `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
 
-*Last updated: 2026-01-07*
+*Last updated: 2026-01-08*
 
 ## Build Features
 
