@@ -4,8 +4,6 @@
 
 A custom bootc operating system image based on [Universal Blue](https://universal-blue.org/) and [Bluefin](https://projectbluefin.io). Built from the finpilot template with system configuration management and remote desktop optimizations.
 
-> Be the one who moves, not the one who is moved.
-
 ## What Makes this Image Different?
 
 This image is based on [Bluefin](https://projectbluefin.io) and includes these customizations:
