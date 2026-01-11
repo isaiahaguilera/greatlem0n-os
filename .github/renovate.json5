@@ -35,6 +35,16 @@
 
   packageRules: [
     {
+      description: 'Ignore qemux/qemu in Justfile - image has issues with pinning',
+      enabled: false,
+      matchPackageNames: [
+        'docker.io/qemux/qemu',
+      ],
+      matchFileNames: [
+        'Justfile',
+      ],
+    },
+    {
       automerge: true,
       matchUpdateTypes: [
         'pin',
