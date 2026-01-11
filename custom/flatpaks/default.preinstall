@@ -68,6 +68,9 @@ Branch=stable
 [Flatpak Preinstall org.gnome.font-viewer]
 Branch=stable
 
+[Flatpak Preinstall com.github.johnfactotum.Foliate]
+Branch=stable
+
 # Graphics & Media
 [Flatpak Preinstall com.github.PintaProject.Pinta]
 Branch=stable

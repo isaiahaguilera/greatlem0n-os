@@ -25,9 +25,9 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - Ghostty terminal from the `scottames/ghostty` COPR
 
 ### Added Applications (Runtime)
-- **CLI Tools (Homebrew)**: Brewfiles for development tools, fonts, and utilities (see `custom/brew/`). Includes fzf, shellcheck, and bbrew.
-- **VS Code Extensions (Homebrew)**: Managed via `custom/brew/vscode.Brewfile` with a ujust installer.
-- **GUI Apps (Flatpak)**: Flatpak preinstall configuration (see `custom/flatpaks/`)
+- **CLI Tools (Homebrew)**: Brewfiles for development tools, fonts, and utilities (see `custom/brew/`). Includes shell enhancements (eza, starship, fzf, zoxide), development tools (shellcheck, cosign), and package management (bbrew).
+- **VS Code Extensions (Homebrew)**: Managed via `custom/brew/vscode.Brewfile` with a ujust installer. Includes themes (Catppuccin), AI assistants (Claude Code, GitHub Copilot), and utilities (color-highlight).
+- **GUI Apps (Flatpak)**: Flatpak preinstall configuration (see `custom/flatpaks/`). Includes productivity apps (Foliate ebook reader) and GNOME utilities.
 
 ### Configuration Files
 - `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`
@@ -42,7 +42,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 - `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
 
-*Last updated: 2026-01-08*
+*Last updated: 2026-01-11*
 
 ## Build Features
 
