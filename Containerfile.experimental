@@ -35,8 +35,8 @@
 ###############################################################################
 # MODULAR STAGES
 ###############################################################################
-FROM ghcr.io/projectbluefin/common:latest@sha256:233b4705313d3a208fed25cee630fbc414f8b72b8def89a4f195a862e320e127 AS bluefin-common
-FROM ghcr.io/ublue-os/brew:latest@sha256:abe58f2012bc433e75579ef75caef8278ed3d774f59783ed7ff02b3eae26f694 AS brew
+FROM ghcr.io/projectbluefin/common:latest@sha256:39ade2499f5c8b972c8725d453f6a573a39fd633d5d1142a1d292d1659ad3dda AS bluefin-common
+FROM ghcr.io/ublue-os/brew:latest@sha256:f9637549a24a7e02315c28db04cc0827dfc04bb74cea3be5c187f10c262c30d2 AS brew
 
 ###############################################################################
 # CONTEXT STAGE - your customizations
@@ -49,7 +49,7 @@ COPY system_files /system_files
 ###############################################################################
 # FINAL IMAGE
 ###############################################################################
-FROM ghcr.io/ublue-os/silverblue-main:latest@sha256:87e5c80798e41b74b337aea8569daf8acc7df551f1d5e4ff30bcc3b0f923bc6d
+FROM ghcr.io/ublue-os/silverblue-main:latest@sha256:cce128a43d9a3bafb69f0ca5c5f08d4bfb73e2fad173c3d32a4b6bbd6101c180
 
 # Apply bluefin-common shared (ujust, flatpak-preinstall, ublue-system-setup, polkit, udev, etc.)
 COPY --from=bluefin-common /system_files/shared /
