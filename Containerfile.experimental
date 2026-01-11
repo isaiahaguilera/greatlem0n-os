@@ -35,7 +35,7 @@
 ###############################################################################
 # MODULAR STAGES
 ###############################################################################
-FROM ghcr.io/projectbluefin/common:latest@sha256:39ade2499f5c8b972c8725d453f6a573a39fd633d5d1142a1d292d1659ad3dda AS bluefin-common
+FROM ghcr.io/projectbluefin/common:latest@sha256:42f229ae36196ed208e5c7d0d7c40ac3ba1d0af5ceda75545ddebcd783f16a36 AS bluefin-common
 FROM ghcr.io/ublue-os/brew:latest@sha256:abe58f2012bc433e75579ef75caef8278ed3d774f59783ed7ff02b3eae26f694 AS brew
 
 ###############################################################################
