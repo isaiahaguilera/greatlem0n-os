@@ -5,7 +5,7 @@
 
 # Shell enhancements
 brew "eza"        # Modern replacement for ls
-brew "starship"   # Cross-shell prompt
+# brew "starship"   # Cross-shell prompt (installed by upstream bluefin currently)
 brew "fzf"        # Cross-shell fuzzy find search tool
 brew "zoxide"     # Smarter cd command that learns your habits
 
