@@ -1,0 +1,25 @@
+[DEFAULT]
+# Base jail: 1 hour ban after 5 failures within 10 minutes
+bantime = 1h
+findtime = 10m
+maxretry = 5
+
+# Escalating bans: 1h → 1 day → 1 week → 1 month
+bantime.increment = true
+bantime.multipliers = 1 24 168 720
+bantime.maxtime = 4w
+
+# Trusted IPs that should never be banned (space-separated)
+# Example: ignoreip = 127.0.0.1/8 ::1 192.168.1.0/24
+ignoreip =
+
+# Use firewalld for banning
+banaction = firewallcmd-rich-rules[actiontype=<multiport>]
+banaction_allports = firewallcmd-rich-rules[actiontype=<allports>]
+# Unban example: fail2ban-client set sshd unbanip 203.0.113.42
+
+[sshd]
+enabled = true
+port = ssh
+logpath = %(sshd_log)s
+backend = %(sshd_backend)s

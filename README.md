@@ -15,6 +15,9 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - **Hardware Access for Remote Sessions**: Udev rules granting wheel users direct hardware access over RDP/SSH
   - WiFi/Bluetooth toggles, USB devices, video capture, block devices, GPIO, DRM/GPU access
   - Eliminates "permission denied" errors for remote admin users
+- **SSH Brute Force Protection**: fail2ban with escalating bans (1h → 1 day → 1 week → 1 month)
+  - Monitors sshd via systemd journal, bans via firewalld rich rules
+  - Automatic ban escalation for repeat offenders
 - **Container Signature Policy**: Require sigstore signatures for `ghcr.io/isaiahaguilera/greatlem0n-os` pulls using the repo public key
 - **Sigstore Registry Attachments**: Enable cosign signature discovery for `ghcr.io/isaiahaguilera/greatlem0n-os`
 - **Fastfetch Branding**: Custom logo directory with shuffle enabled, labeled key layout + percent palette, plus `/usr/bin` wrapper + shell/fish aliases (GNOME accent "bling" now opt-in)
@@ -30,6 +33,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - **GUI Apps (Flatpak)**: Flatpak preinstall configuration (see `custom/flatpaks/`). Includes productivity apps (Foliate ebook reader) and GNOME utilities.
 
 ### Configuration Files
+- `system_files/shared/etc/fail2ban/jail.local`
 - `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`
 - `system_files/shared/etc/udev/rules.d/90-wheel-hardware-access.rules`
 - `system_files/shared/etc/containers/registries.d/greatlem0n-os.yaml`
@@ -42,7 +46,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 - `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
 
-*Last updated: 2026-01-11*
+*Last updated: 2026-01-15*
 
 ## Quick Start
 
