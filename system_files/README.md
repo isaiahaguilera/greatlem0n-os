@@ -7,13 +7,17 @@ This directory contains system-level configuration files that get copied directl
 ```
 system_files/
 └── shared/
-    └── etc/
-        ├── polkit-1/
-        │   └── rules.d/
-        │       └── *.rules          # PolicyKit authorization rules
-        └── udev/
-            └── rules.d/
-                └── *.rules          # Device access rules
+    ├── etc/
+    │   ├── polkit-1/
+    │   │   └── rules.d/
+    │   │       └── *.rules          # PolicyKit authorization rules
+    │   └── udev/
+    │       └── rules.d/
+    │           └── *.rules          # Device access rules
+    └── usr/
+        └── lib/
+            └── tmpfiles.d/
+                └── *.conf           # Boot-time directory/file creation
 ```
 
 The `shared/` directory mirrors the root filesystem structure. Files are copied with:
@@ -131,12 +135,18 @@ Hardens SSH configuration for key-based authentication only.
 
 **`jail.local`** - Intrusion Prevention
 
-Bans IPs after repeated failed SSH login attempts. **Not enabled by default** - enable manually when needed.
+Bans IPs after repeated failed SSH login attempts with escalating ban times.
 
 - Config: `system_files/shared/etc/fail2ban/jail.local`
-- Ban time: 1 hour
-- Max retries: 3 failures within 10 minutes
+- Initial ban: 1 hour after 5 failures in 10 minutes
+- Escalation: 1h → 1 day → 1 week → 1 month (repeat offenders)
 - Backend: firewalld rich rules
+
+**`fail2ban-var-lib.conf`** - Boot-time Directory Creation
+
+Creates `/var/lib/fail2ban` with correct SELinux context on boot. Required for bootc/ostree systems where `/var` isn't part of the image.
+
+- Config: `system_files/shared/usr/lib/tmpfiles.d/fail2ban-var-lib.conf`
 
 **Enable fail2ban**:
 ```bash
@@ -154,6 +164,12 @@ sudo fail2ban-client set sshd unbanip <IP>
 # View fail2ban log
 sudo journalctl -u fail2ban
 ```
+
+### tmpfiles.d Configurations
+
+Drop-in configs for systemd-tmpfiles, which creates directories and files at boot time. Essential for bootc/ostree where `/var` isn't part of the immutable image.
+
+**`fail2ban-var-lib.conf`** - Creates `/var/lib/fail2ban` with correct SELinux context (`fail2ban_var_lib_t`) so fail2ban can store its persistent database.
 
 ## Migration Note
 
