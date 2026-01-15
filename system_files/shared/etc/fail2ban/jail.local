@@ -1,8 +1,8 @@
 [DEFAULT]
-# Base jail: 1 hour ban after 5 failures within 10 minutes
+# Base jail: 1 hour ban after 3 failures within 10 minutes
 bantime = 1h
 findtime = 10m
-maxretry = 5
+maxretry = 3
 
 # Escalating bans: 1h → 1 day → 1 week → 1 month
 bantime.increment = true

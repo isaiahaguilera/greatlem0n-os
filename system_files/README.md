@@ -138,7 +138,7 @@ Hardens SSH configuration for key-based authentication only.
 Bans IPs after repeated failed SSH login attempts with escalating ban times.
 
 - Config: `system_files/shared/etc/fail2ban/jail.local`
-- Initial ban: 1 hour after 5 failures in 10 minutes
+- Initial ban: 1 hour after 3 failures in 10 minutes
 - Escalation: 1h → 1 day → 1 week → 1 month (repeat offenders)
 - Backend: firewalld rich rules
 
