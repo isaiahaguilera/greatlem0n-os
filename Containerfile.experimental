@@ -49,7 +49,7 @@ COPY system_files /system_files
 ###############################################################################
 # FINAL IMAGE
 ###############################################################################
-FROM ghcr.io/ublue-os/silverblue-main:latest@sha256:218054794883198ee8588bdd9e70767f9b03668445b8e16a42c9c447b55bfaa0
+FROM ghcr.io/ublue-os/silverblue-main:latest@sha256:12a6234280d2e4bc65d57feee6aa07c14f6e26c17f81ec78fcb36cdf1ce4cb67
 
 # Apply bluefin-common shared (ujust, flatpak-preinstall, ublue-system-setup, polkit, udev, etc.)
 COPY --from=bluefin-common /system_files/shared /
