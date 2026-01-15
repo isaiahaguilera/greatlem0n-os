@@ -53,6 +53,9 @@ echo "::group:: System Configuration"
 systemctl enable podman.socket
 # Example: systemctl mask unwanted-service
 
+# Enable SSH service
+systemctl enable sshd.service
+
 echo "::endgroup::"
 
 echo "System Configuration Script complete!"

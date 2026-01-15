@@ -28,6 +28,8 @@ FEDORA_PACKAGES=(
     keychain
     git
     stow
+    rclone
+    fail2ban
 )
 
 dnf5 install -y "${FEDORA_PACKAGES[@]}"

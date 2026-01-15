@@ -116,6 +116,45 @@ Sets a custom logo directory and enables random logo selection:
 - Logo assets: `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/`
 - Example logo: `TwoThumbsUpLemon.ansi`
 
+### SSH Configuration
+
+**`50-security.conf`** - SSH Security Hardening
+
+Hardens SSH configuration for key-based authentication only.
+
+- Config: `system_files/shared/etc/ssh/sshd_config.d/50-security.conf`
+- Port: 22 (standard)
+- Security: Disables root login and password authentication
+- Protection: fail2ban automatically bans attackers (when enabled)
+
+### fail2ban Configuration
+
+**`jail.local`** - Intrusion Prevention
+
+Bans IPs after repeated failed SSH login attempts. **Not enabled by default** - enable manually when needed.
+
+- Config: `system_files/shared/etc/fail2ban/jail.local`
+- Ban time: 1 hour
+- Max retries: 3 failures within 10 minutes
+- Backend: firewalld rich rules
+
+**Enable fail2ban**:
+```bash
+sudo systemctl enable --now fail2ban
+```
+
+**Monitoring**:
+```bash
+# Check banned IPs
+sudo fail2ban-client status sshd
+
+# Unban an IP
+sudo fail2ban-client set sshd unbanip <IP>
+
+# View fail2ban log
+sudo journalctl -u fail2ban
+```
+
 ## Migration Note
 
 The `custom/` directory is still used for Brewfiles, Flatpaks, and ujust commands. Eventually, those may migrate to `system_files/` to fully align with Universal Blue patterns, but for now:
