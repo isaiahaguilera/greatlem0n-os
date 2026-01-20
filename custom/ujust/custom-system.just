@@ -90,3 +90,8 @@ update-and-reboot:
     else
         echo "Reboot later to apply updates."
     fi
+
+# Toggle passwordless sudo (requires password)
+[group('System')]
+toggle-sudo:
+    sudo /usr/bin/toggle-passwordless-sudo

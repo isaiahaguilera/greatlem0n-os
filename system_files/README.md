@@ -11,13 +11,21 @@ system_files/
     │   ├── polkit-1/
     │   │   └── rules.d/
     │   │       └── *.rules          # PolicyKit authorization rules
+    │   ├── profile.d/
+    │   │   └── *.sh                 # Shell environment setup (bash/sh/zsh)
     │   └── udev/
     │       └── rules.d/
     │           └── *.rules          # Device access rules
     └── usr/
-        └── lib/
-            └── tmpfiles.d/
-                └── *.conf           # Boot-time directory/file creation
+        ├── bin/
+        │   └── *                    # System scripts and utilities
+        ├── lib/
+        │   └── tmpfiles.d/
+        │       └── *.conf           # Boot-time directory/file creation
+        └── share/
+            └── fish/
+                └── vendor_conf.d/
+                    └── *.fish       # Fish shell environment setup
 ```
 
 The `shared/` directory mirrors the root filesystem structure. Files are copied with:
@@ -164,6 +172,40 @@ sudo fail2ban-client set sshd unbanip <IP>
 # View fail2ban log
 sudo journalctl -u fail2ban
 ```
+
+### Default Editor Configuration
+
+**`default-editor.sh`** - Sets vim as the default editor for CLI tools (bash/sh/zsh)
+**`default-editor.fish`** - Sets vim as the default editor for CLI tools (fish)
+
+Sets `EDITOR`, `VISUAL`, and `SUDO_EDITOR` environment variables so vim is used by:
+- git (commit messages, interactive rebase)
+- crontab
+- visudo and `sudo -e`
+- Any tool that respects `$EDITOR`
+
+- Bash/Zsh config: `system_files/shared/etc/profile.d/default-editor.sh`
+- Fish config: `system_files/shared/usr/share/fish/vendor_conf.d/default-editor.fish`
+
+### System Scripts
+
+**`toggle-passwordless-sudo`** - Toggle passwordless sudo for the current user
+
+Creates or removes a sudoers drop-in file (`/etc/sudoers.d/99-passwordless`) that grants NOPASSWD access to the invoking user. Useful for development/home systems where frequent sudo is needed.
+
+- Script: `system_files/shared/usr/bin/toggle-passwordless-sudo`
+- ujust command: `ujust toggle-sudo`
+
+**Usage**:
+```bash
+# Via ujust
+ujust toggle-sudo
+
+# Direct
+sudo toggle-passwordless-sudo
+```
+
+**Security note**: Passwordless sudo reduces security. Only enable on trusted single-user systems.
 
 ### tmpfiles.d Configurations
 
