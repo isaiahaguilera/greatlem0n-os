@@ -30,7 +30,7 @@ fi
 
 if [ "$SHUFFLE_LOGO" == "true" ] ; then
   FETCH_LOGO="$(find "$LOGO_DIRECTORY" -type f | shuf -n 1)"
-  fastfetch --logo "$FETCH_LOGO" "${bling_args[@]}" --config "${FASTFETCH_CONFIG}" "${@}"
+  exec fastfetch --logo "$FETCH_LOGO" "${bling_args[@]}" --config "${FASTFETCH_CONFIG}" "${@}"
 else
-  fastfetch "${bling_args[@]}" --config "${FASTFETCH_CONFIG}" "${@}"
+  exec fastfetch "${bling_args[@]}" --config "${FASTFETCH_CONFIG}" "${@}"
 fi
