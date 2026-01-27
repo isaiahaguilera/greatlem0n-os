@@ -3,11 +3,15 @@
 # Format: INI file with [Flatpak Preinstall NAME] groups
 # See: https://docs.flatpak.org/en/latest/flatpak-command-reference.html#flatpak-preinstall
 
+# ===========================
 # Web Browsers
+# ===========================
 [Flatpak Preinstall com.brave.Browser]
 Branch=stable
 
+# ===========================
 # Productivity
+# ===========================
 [Flatpak Preinstall md.obsidian.Obsidian]
 Branch=stable
 
@@ -71,14 +75,21 @@ Branch=stable
 [Flatpak Preinstall com.github.johnfactotum.Foliate]
 Branch=stable
 
+[Flatpak Preinstall org.onlyoffice.desktopeditors]
+Branch=stable
+
+# ===========================
 # Graphics & Media
+# ===========================
 [Flatpak Preinstall com.github.PintaProject.Pinta]
 Branch=stable
 
 [Flatpak Preinstall com.github.finefindus.eyedropper]
 Branch=stable
 
+# ===========================
 # System Utilities
+# ===========================
 [Flatpak Preinstall com.github.tchx84.Flatseal]
 Branch=stable
 
@@ -100,7 +111,9 @@ Branch=stable
 [Flatpak Preinstall io.gitlab.adhami3310.Impression]
 Branch=stable
 
+# ===========================
 # Universal Blue Specific
+# ===========================
 [Flatpak Preinstall com.ranfdev.DistroShelf]
 Branch=stable
 
@@ -110,7 +123,9 @@ Branch=stable
 [Flatpak Preinstall page.tesk.Refine]
 Branch=stable
 
+# ===========================
 # Flatpak Runtimes & Extensions
+# ===========================
 [Flatpak Preinstall org.freedesktop.Platform.ffmpeg-full]
 Branch=24.08
 IsRuntime=true
@@ -123,7 +138,9 @@ IsRuntime=true
 Branch=stable
 IsRuntime=true
 
+# ===========================
 # GTK Themes
+# ===========================
 [Flatpak Preinstall org.gtk.Gtk3theme.adw-gtk3]
 Branch=3.22
 IsRuntime=true
