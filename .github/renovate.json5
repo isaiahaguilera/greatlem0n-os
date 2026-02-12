@@ -5,6 +5,7 @@
   ],
   rebaseWhen: 'never',
   prConcurrentLimit: 20,
+  platformAutomerge: true,
 
   customManagers: [
     {
