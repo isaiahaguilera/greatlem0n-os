@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload QCOW2 as Artifact
         if: ${{ !inputs.upload-to-s3 }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: qcow2-image
           path: output/qcow2/disk.qcow2
@@ -164,7 +164,7 @@ jobs:
 
       - name: Upload ISO as Artifact
         if: ${{ !inputs.upload-to-s3 }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: anaconda-iso
           path: output/bootiso/install.iso
