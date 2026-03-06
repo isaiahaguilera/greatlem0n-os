@@ -1,6 +1,6 @@
 export image_name := env("IMAGE_NAME", "greatlem0n-os")
 export default_tag := env("DEFAULT_TAG", "stable")
-export bib_image := env("BIB_IMAGE", "quay.io/centos-bootc/bootc-image-builder:latest@sha256:181d627c3a644a4275fa324af1dbed852c9dba6eacd8ea0be071bdbb0fe1547f")
+export bib_image := env("BIB_IMAGE", "quay.io/centos-bootc/bootc-image-builder:latest@sha256:eb2f5db03a3c59e21407579e8cb9a2a9a79af5d103758b6b768b4abbe5b44468")
 
 alias build-vm := build-qcow2
 alias rebuild-vm := rebuild-qcow2
