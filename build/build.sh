@@ -43,6 +43,9 @@ echo "Starting build process..."
 # VSCode/VSCodium installation from Microsoft/VSCodium repos
 /ctx/build/11-vscode.sh
 
+# cloudflared installation from Cloudflare repo
+/ctx/build/12-cloudflared.sh
+
 ###############################################################################
 # Conditional Scripts (Examples)
 ###############################################################################
