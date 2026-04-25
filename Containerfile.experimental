@@ -36,7 +36,7 @@
 # MODULAR STAGES
 ###############################################################################
 FROM ghcr.io/projectbluefin/common:latest@sha256:42f229ae36196ed208e5c7d0d7c40ac3ba1d0af5ceda75545ddebcd783f16a36 AS bluefin-common
-FROM ghcr.io/ublue-os/brew:latest@sha256:893a916a675c7d22b1140b7766c6d03b601c231e1e6aefbc57434bc27f32279e AS brew
+FROM ghcr.io/ublue-os/brew:latest@sha256:20d951fe7826ecc099b924a127eab4949f0a8566b15bf76a22bdb95a49468919 AS brew
 
 ###############################################################################
 # CONTEXT STAGE - your customizations
