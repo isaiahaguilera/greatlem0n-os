@@ -46,6 +46,9 @@ echo "Starting build process..."
 # cloudflared installation from Cloudflare repo
 /ctx/build/12-cloudflared.sh
 
+# Claude Desktop installation from claude-desktop-debian repo
+/ctx/build/13-claude-desktop.sh
+
 ###############################################################################
 # Conditional Scripts (Examples)
 ###############################################################################
