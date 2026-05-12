@@ -35,6 +35,13 @@
 
   packageRules: [
     {
+      description: 'Ignore Containerfile.experimental - kept for reference only',
+      enabled: false,
+      matchFileNames: [
+        'Containerfile.experimental',
+      ],
+    },
+    {
       description: 'Ignore qemux/qemu in Justfile - image has issues with pinning',
       enabled: false,
       matchPackageNames: [
