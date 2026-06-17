@@ -21,6 +21,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - **Container Signature Policy**: Require sigstore signatures for `ghcr.io/isaiahaguilera/greatlem0n-os` pulls using the repo public key
 - **Sigstore Registry Attachments**: Enable cosign signature discovery for `ghcr.io/isaiahaguilera/greatlem0n-os`
 - **Fastfetch Branding**: Custom logo directory with shuffle enabled, labeled key layout + percent palette, plus `/usr/bin` wrapper + shell/fish aliases (GNOME accent "bling" now opt-in)
+- **Tailscale Exit Node**: IP forwarding enabled (`net.ipv4.ip_forward`, `net.ipv6.conf.all.forwarding`) so this device can optionally serve as a Tailscale exit node — toggle via `ujust tailscale-exit-node`
 
 ### Added Packages (Build-time)
 - Core system packages and services (see `build/02-system-config.sh` and `build/04-packages.sh`)
@@ -45,8 +46,9 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/usr/share/fish/vendor_conf.d/ublue-fastfetch.fish`
 - `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 - `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
+- `system_files/shared/etc/sysctl.d/99-tailscale.conf`
 
-*Last updated: 2026-01-15*
+*Last updated: 2026-06-17*
 
 ## Quick Start
 

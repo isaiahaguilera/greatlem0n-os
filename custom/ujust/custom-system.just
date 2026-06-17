@@ -95,3 +95,33 @@ update-and-reboot:
 [group('System')]
 toggle-sudo:
     sudo /usr/bin/toggle-passwordless-sudo
+
+# Configure Tailscale exit node (advertise this device as an exit node)
+# Enable also configures firewalld masquerade and UDP GRO forwarding for full functionality
+[group('System')]
+tailscale-exit-node:
+    #!/usr/bin/env bash
+    source /usr/lib/ujust/ujust.sh
+    echo "Tailscale Exit Node"
+    echo "Current status: $(tailscale status 2>/dev/null | grep -i 'exit node\|tagged' | head -1 || echo 'run tailscale status to check')"
+    echo ""
+    OPTION=$(Choose "Enable" "Disable" "Cancel")
+    case "$OPTION" in
+        "Enable")
+            sudo tailscale set --advertise-exit-node
+            sudo firewall-cmd --permanent --add-masquerade
+            sudo firewall-cmd --reload
+            IFACE=$(ip route show default | awk '/default/ {print $5}' | head -1)
+            [ -n "$IFACE" ] && sudo ethtool -K "$IFACE" rx-udp-gro-forwarding on
+            echo "Exit node enabled. Approve this device at: https://login.tailscale.com/admin/machines"
+            ;;
+        "Disable")
+            sudo tailscale set --advertise-exit-node=false
+            sudo firewall-cmd --permanent --remove-masquerade
+            sudo firewall-cmd --reload
+            echo "Exit node disabled."
+            ;;
+        "Cancel")
+            echo "No changes made."
+            ;;
+    esac
