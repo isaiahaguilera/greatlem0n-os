@@ -30,6 +30,7 @@ FEDORA_PACKAGES=(
     stow
     rclone
     fail2ban
+    gparted
 )
 
 dnf5 install -y "${FEDORA_PACKAGES[@]}"

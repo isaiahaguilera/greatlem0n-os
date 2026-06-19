@@ -25,6 +25,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 
 ### Added Packages (Build-time)
 - Core system packages and services (see `build/02-system-config.sh` and `build/04-packages.sh`)
+- GParted disk partition editor
 - Visual Studio Code from the official Microsoft repository for development work
 - Ghostty terminal from the `scottames/ghostty` COPR
 
