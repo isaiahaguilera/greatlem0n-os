@@ -952,6 +952,30 @@ COPY --from=brew /ctx /
 - Reference implementation: [bluefin-lts](https://github.com/ublue-os/bluefin-lts/) commit 83d5b68
 - Hardware specs: AMD Ryzen 7 5700U, 32GB RAM, currently running bluefin:stable Fedora 43
 
+### Deferred: Cosign v3 Migration
+
+**Status**: Not done. Deferred deliberately on 2026-07-27. Revisit when convenient.
+
+`cosign-release` in `.github/workflows/build.yml` is pinned to **v2.6.4**. Renovate's v3 bump (PR #166) was closed, not merged.
+
+**Why deferred**: cosign v3 changes the signature format (Sigstore Bundle v0.3). This host enforces signature verification — `build/03-patch-containers-policy.sh` sets `policy.json` to `sigstoreSigned` with `keyPath`, and the global default is `reject`. If podman/containers-image cannot read the new format, `bootc upgrade` stops being able to pull images.
+
+**Blast radius is low**: the running system is unaffected; a bad pull just fails loudly and the fix is reverting one line.
+
+**How to do it safely** (as its own PR, not bundled with other changes):
+1. Bump `cosign-release` to v3.x
+2. Let CI build and sign one image
+3. `podman pull ghcr.io/isaiahaguilera/greatlem0n-os:stable` **before** rebooting
+4. If it fails to verify, revert the one line
+
+**Static keys are fine — keep them.** v3 still supports `cosign sign --key`. Tool version and signing method are independent choices.
+
+**Do NOT move to keyless OIDC.** `projectbluefin/finpilot` mandates keyless, but it verifies with the **cosign CLI**, which handles GitHub Actions workflow identities. This repo verifies through podman's `policy.json`, whose `fulcio` mode requires a mandatory `subjectEmail` that Actions certificates likely cannot satisfy (they carry a workflow URI, not an email). Adopting finpilot's signing without finpilot's verification method would likely break updates.
+
+**Upstream is split** — check both orgs before citing convention:
+- `ublue-os` (what `Containerfile` FROM currently tracks): cosign **v2.6.4** (bazzite, ucore)
+- `projectbluefin` (newer, more active): cosign **v3.1.x** (bluefin, bluefin-lts)
+
 ### Key Resources
 
 - [Bluefin 2025 Blog](https://docs.projectbluefin.io/blog/bluefin-2025/) - Architecture context and rationale
@@ -1012,6 +1036,6 @@ Assisted-by: Claude Sonnet 4.5 via Claude Code
 
 ---
 
-**Last Updated**: 2026-01-01
+**Last Updated**: 2026-07-27
 **Image**: greatlem0n-os (Custom bootc image with system_files support and modular migration vision)
 **Based On**: Universal Blue finpilot template
