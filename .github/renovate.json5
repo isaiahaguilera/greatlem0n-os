@@ -108,5 +108,33 @@
         '.github/workflows/**.yml',
       ],
     },
+    {
+      description: 'Auto-merge non-major workflow updates (actions, cosign) once the build check passes; majors stay manual',
+      automerge: true,
+      matchUpdateTypes: [
+        'digest',
+        'pinDigest',
+        'pin',
+        'minor',
+        'patch',
+      ],
+      matchFileNames: [
+        '.github/workflows/**.yaml',
+        '.github/workflows/**.yml',
+      ],
+    },
+    {
+      description: 'Auto-merge bootc-image-builder digest updates in Justfile',
+      automerge: true,
+      matchUpdateTypes: [
+        'digest',
+      ],
+      matchPackageNames: [
+        'quay.io/centos-bootc/bootc-image-builder',
+      ],
+      matchFileNames: [
+        'Justfile',
+      ],
+    },
   ],
 }
