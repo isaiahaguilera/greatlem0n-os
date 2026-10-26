@@ -25,7 +25,7 @@ concurrency:
 jobs:
   build-qcow2:
     name: Build QCOW2 disk image
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     permissions:
       contents: read
@@ -110,7 +110,7 @@ jobs:
 
   build-iso:
     name: Build Anaconda ISO
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     permissions:
       contents: read
