@@ -38,7 +38,7 @@ COPY system_files /system_files
 ###############################################################################
 # Base Image
 ###############################################################################
-FROM ghcr.io/ublue-os/bluefin:stable@sha256:af6966c9854d4289cef17c323c4e3d0afcb62bb602f6fe3d810cdd9d52bb4d37
+FROM ghcr.io/ublue-os/bluefin:stable@sha256:60f302cf95d422a46a961769a1918b08cccfc24a27b22111ad8afcabfb5ad400
 
 ## Other possible base images include:
 # FROM ghcr.io/ublue-os/bazzite:latest@sha256:71a51c4faf8cec6401b8c99ab319d1e7705a77f2253817710093eb3b436132cd
