@@ -136,5 +136,12 @@
         'Justfile',
       ],
     },
+    {
+      description: 'Hold cosign on v2: v3 signatures fail the policy.json check bootc uses (containers/container-libs#388)',
+      matchPackageNames: [
+        'sigstore/cosign',
+      ],
+      allowedVersions: '<3',
+    },
   ],
 }
