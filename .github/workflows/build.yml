@@ -243,7 +243,8 @@ jobs:
 
       # Verify the pushed image the way bootc on installed machines does (policy.json
       # sigstoreSigned + keyPath). `cosign verify` is not enough: it accepts cosign v3
-      # bundles that containers-image cannot read. Streams to /dev/null to save disk.
+      # bundles that containers-image cannot read. Streams to /dev/null to save disk;
+      # --remove-signatures only skips writing signatures there, verification still runs.
       - name: Verify signature with containers policy
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         run: |
@@ -257,7 +258,7 @@ jobs:
                signedIdentity: {type: "matchRepository"}
              }]}}}' > "$POLICY"
           skopeo --version
-          skopeo copy --quiet --policy "$POLICY" \
+          skopeo copy --quiet --remove-signatures --policy "$POLICY" \
             --registries.d system_files/shared/etc/containers/registries.d \
             "docker://${IMAGE_FULL}@${DIGEST}" docker-archive:/dev/null
           echo "Signature accepted by containers policy for ${IMAGE_FULL}@${DIGEST}"
