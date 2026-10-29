@@ -956,25 +956,31 @@ COPY --from=brew /ctx /
 
 **Status**: Not done. Deferred deliberately on 2026-07-27. Revisit when convenient.
 
-`cosign-release` in `.github/workflows/build.yml` is pinned to **v2.6.4**. Renovate's v3 bump (PR #166) was closed, not merged.
+`cosign-release` in `.github/workflows/build.yml` is pinned to the **v2 line** (v2.6.5 as of 2026-10-26; patch bumps auto-merge). Renovate's v3 bump (PR #166) was closed, not merged.
 
 **Why deferred**: cosign v3 changes the signature format (Sigstore Bundle v0.3). This host enforces signature verification — `build/03-patch-containers-policy.sh` sets `policy.json` to `sigstoreSigned` with `keyPath`, and the global default is `reject`. If podman/containers-image cannot read the new format, `bootc upgrade` stops being able to pull images.
 
+**Confirmed (2026-10-29): a plain v3 bump breaks updates.** The sibling eaglesnest-os moved to cosign v3 on 2026-07-30, and every image it signed since then is rejected by this same policy setup ("A signature was required, but no signature exists"). v3 `sign --key` writes OCI-referrer `sigstore.bundle.v0.3` artifacts (tag `sha256-<digest>`, no `.sig`), which containers-image does not read. `cosign verify` still passes, so it is not a valid test. greatlem0n-os `:stable` on v2.6.5 passes the policy check.
+
 **Blast radius is low**: the running system is unaffected; a bad pull just fails loudly and the fix is reverting one line.
 
-**How to do it safely** (as its own PR, not bundled with other changes):
-1. Bump `cosign-release` to v3.x
-2. Let CI build and sign one image
-3. `podman pull ghcr.io/isaiahaguilera/greatlem0n-os:stable` **before** rebooting
-4. If it fails to verify, revert the one line
+**How to test any cosign change** (as its own PR, not bundled with other changes): after CI signs one image, run the real verification path locally before rebooting:
+
+```bash
+# policy.json: {"default":[{"type":"reject"}],"transports":{"docker":{"ghcr.io/isaiahaguilera/greatlem0n-os":[{"type":"sigstoreSigned","keyPath":"<repo>/system_files/shared/etc/pki/containers/greatlem0n-os.pub","signedIdentity":{"type":"matchRepository"}}]},"dir":{"":[{"type":"insecureAcceptAnything"}]}}}
+skopeo copy --policy policy.json --registries.d system_files/shared/etc/containers/registries.d \
+  docker://ghcr.io/isaiahaguilera/greatlem0n-os:stable dir:/tmp/sigtest
+```
+
+If it is rejected, revert the one line.
 
 **Static keys are fine — keep them.** v3 still supports `cosign sign --key`. Tool version and signing method are independent choices.
 
 **Do NOT move to keyless OIDC.** `projectbluefin/finpilot` mandates keyless, but it verifies with the **cosign CLI**, which handles GitHub Actions workflow identities. This repo verifies through podman's `policy.json`, whose `fulcio` mode requires a mandatory `subjectEmail` that Actions certificates likely cannot satisfy (they carry a workflow URI, not an email). Adopting finpilot's signing without finpilot's verification method would likely break updates.
 
-**Upstream is split** — check both orgs before citing convention:
-- `ublue-os` (what `Containerfile` FROM currently tracks): cosign **v2.6.4** (bazzite, ucore)
-- `projectbluefin` (newer, more active): cosign **v3.1.x** (bluefin, bluefin-lts)
+**Upstream status (checked 2026-10-29)**: `ublue-os/bluefin` and `ublue-os/bluefin-lts` (what `Containerfile` FROM tracks) sign with cosign **v2.6.1** (the cosign-installer default). Bazzite uses v2.6.5. Aurora (v3.1.4) and `ublue-os/image-template` (v3.1.2, PR #243) run v3 only with `cosign sign --new-bundle-format=false --use-signing-config=false` (both flags are required) to keep the legacy `.sig` format. `projectbluefin/bluefin` and `projectbluefin/bluefin-lts` are now **archived**; Bluefin development is back under `ublue-os`. Native bundle support on the verify side is still open upstream: [containers/container-libs#388](https://github.com/containers/container-libs/issues/388), [coreos/rpm-ostree#5509](https://github.com/coreos/rpm-ostree/issues/5509). Revisit v3 when those ship in Fedora.
+
+**Both repos match (2026-10-29)**: eaglesnest-os was moved back to this same v2 setup so there is one signing method to maintain. `.github/renovate.json5` (identical in both repos) holds `sigstore/cosign` at `<3`.
 
 ### Key Resources
 
@@ -1015,10 +1021,32 @@ COPY --from=brew /ctx /
 
 ---
 
+## Maintainer Notes
+
+Project knowledge that agents need. Keep this in sync with any agent memory: when a memory is added or changed, mirror it here. (The cosign decision is mirrored in "Deferred: Cosign v3 Migration" above.)
+
+### Working With the Maintainer
+
+- Answer questions first, before taking any action. Only start work once the maintainer confirms.
+- Confirm before committing and pushing.
+- Single branch (`main`). Prefer surgical, minimal changes. Test risky changes in a VM first; bootc rollback is the safety net. This is a personal daily-driver image, so calculated risk is acceptable.
+- Sibling repo: [eaglesnest-os](https://github.com/isaiahaguilera/eaglesnest-os), a family/homeschool image bootstrapped from this one. It shares build patterns but intentionally drops this repo's dev/remote-admin features.
+
+### Renovate & Merging
+
+- `.github/renovate.json5` auto-merges Bluefin base-image digests, **non-major** workflow updates (action pins, cosign patch/minor), and the `bootc-image-builder` digest in the `Justfile`, once the required "Build and push image" check passes. **Major** updates (e.g. runner `ubuntu` version, cosign v3) stay manual.
+- The maintainer's `gh` token has no `workflow` scope. `gh pr merge` fails on a PR that edits `.github/workflows/*` if main changed that file after the PR branch was created. Workaround: tick the PR's rebase checkbox on the Dependency Dashboard issue, run `gh workflow run Renovate`, wait for the rebased build, then merge. The Renovate GitHub App has workflow permission. Alternatively, the maintainer runs `gh auth refresh -s workflow`.
+- Direct pushes to `main` work for the maintainer: the branch ruleset requires the build check, but the admin role bypasses it.
+
+### Known Issue: GNOME Settings Unlock Over RDP
+
+Open since 2026-07-15, no fix applied (the maintainer chose to wait). Over an RDP session, the **Unlock** button in GNOME Settings (Users, Printers) does nothing. Diagnosis: not polkit. polkit correctly returns `auth_admin` with a challenge, and `pkexec` prompts fine over RDP. gnome-control-center 50 never issues the authorization call from the seatless RDP session. A possible workaround is wheel+active polkit grants for `org.freedesktop.accounts.user-administration` and `org.opensuse.cupspkhelper.mechanism.*` in `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`. That deviates from the file's other rules (these actions prompt locally), so it needs the maintainer's sign-off. Separately, polkit-127 aborts on `unix-session` subjects for seatless sessions; that is worth reporting upstream but is not the cause.
+
 ## Other Rules that are Important to the Maintainers
 
 - Ensure that [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#specification) are used and enforced for every commit and pull request title.
 - Always be surgical with the least amount of code, the project strives to be easy to maintain.
+- Mirror every agent memory into the "Maintainer Notes" section of this file (or the relevant existing section) and keep the two in sync.
 
 ## Attribution Requirements
 
@@ -1036,6 +1064,6 @@ Assisted-by: Claude Sonnet 4.5 via Claude Code
 
 ---
 
-**Last Updated**: 2026-07-27
+**Last Updated**: 2026-10-29
 **Image**: greatlem0n-os (Custom bootc image with system_files support and modular migration vision)
 **Based On**: Universal Blue finpilot template
