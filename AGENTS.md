@@ -974,6 +974,8 @@ skopeo copy --policy policy.json --registries.d system_files/shared/etc/containe
 
 If it is rejected, revert the one line.
 
+CI runs this check automatically: the **"Verify signature with containers policy"** step in `.github/workflows/build.yml` (added 2026-10-29, identical in both repos) fails the build if the freshly pushed image would be rejected.
+
 **Static keys are fine — keep them.** v3 still supports `cosign sign --key`. Tool version and signing method are independent choices.
 
 **Do NOT move to keyless OIDC.** `projectbluefin/finpilot` mandates keyless, but it verifies with the **cosign CLI**, which handles GitHub Actions workflow identities. This repo verifies through podman's `policy.json`, whose `fulcio` mode requires a mandatory `subjectEmail` that Actions certificates likely cannot satisfy (they carry a workflow URI, not an email). Adopting finpilot's signing without finpilot's verification method would likely break updates.
