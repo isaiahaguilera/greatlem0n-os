@@ -1,0 +1,20 @@
+# NCQ Off for the Fanxiang S101Q SSD
+#
+# WHY THIS EXISTS:
+# The Fanxiang S101Q's firmware hangs on queued reads (NCQ) under long, heavy
+# reads: READ FPDMA QUEUED timeouts, hard link resets, and once XFS shutting the
+# filesystem down (2026-06-10 and 2026-11-14). Each time, the errors stopped as
+# soon as the kernel gave up on NCQ ("NCQ disabled due to excessive errors").
+# Turning SATA power saving off (kargs.d/10-sata-max-performance.toml) did not
+# stop them on its own.
+#
+# WHAT THIS DOES:
+# Sets the drive's queue depth to 1, which makes the kernel stop using NCQ for
+# this drive only, from the moment udev sees it at boot. It matches the model
+# name, so a different drive gets full NCQ and nothing needs reverting. Numbered
+# after 60-persistent-storage.rules, which sets ID_MODEL.
+#
+# CHECK:
+#   cat /sys/block/sda/device/queue_depth    # 1
+
+ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="sd*[!0-9]", ENV{ID_MODEL}=="Fanxiang_S101Q*", ATTR{device/queue_depth}="1"

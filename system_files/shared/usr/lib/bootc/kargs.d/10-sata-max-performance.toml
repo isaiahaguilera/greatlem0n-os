@@ -1,11 +1,10 @@
 # SATA Link Power Management Off
 #
 # WHY THIS EXISTS:
-# The 2 TB Fanxiang S101Q data SSD freezes under long, heavy reads when its SATA
-# link is in the kernel's default power-saving mode (min_power_with_partial).
-# The drive misses its wake-up, reads time out (READ FPDMA QUEUED), the link is
-# hard-reset, and XFS shuts the filesystem down. This happened on 2026-06-10 and
-# 2026-11-14. With the link held at full power, it ran clean.
+# The 2 TB Fanxiang S101Q data SSD freezes under long, heavy reads (2026-06-10
+# and 2026-11-14). Power saving was the first suspect. The real cause turned out
+# to be NCQ, which etc/udev/rules.d/61-fanxiang-s101q-noncq.rules turns off for
+# that drive. This file is kept so the SATA link never sleeps under it either.
 #
 # WHAT THIS DOES:
 # Adds the kernel argument ahci.mobile_lpm_policy=1 (max_performance), which keeps

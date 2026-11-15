@@ -23,6 +23,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - **Fastfetch Branding**: Custom logo directory with shuffle enabled, labeled key layout + percent palette, plus `/usr/bin` wrapper + shell/fish aliases (GNOME accent "bling" now opt-in)
 - **Tailscale Exit Node**: IP forwarding enabled (`net.ipv4.ip_forward`, `net.ipv6.conf.all.forwarding`) so this device can optionally serve as a Tailscale exit node — toggle via `ujust tailscale-exit-node`
 - **SATA Power Saving Off**: kernel argument `ahci.mobile_lpm_policy=1` keeps SATA links at full power, so the data SSD doesn't freeze under heavy reads
+- **NCQ Off for the Fanxiang S101Q SSD**: udev rule sets queue depth 1 for that drive model only, because its firmware hangs on queued reads; other drives keep full NCQ
 
 ### Added Packages (Build-time)
 - Core system packages and services (see `build/02-system-config.sh` and `build/04-packages.sh`)
@@ -39,6 +40,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/etc/fail2ban/jail.local`
 - `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`
 - `system_files/shared/etc/udev/rules.d/90-wheel-hardware-access.rules`
+- `system_files/shared/etc/udev/rules.d/61-fanxiang-s101q-noncq.rules`
 - `system_files/shared/etc/containers/registries.d/greatlem0n-os.yaml`
 - `system_files/shared/etc/greatlem0n-os/fastfetch.json`
 - `system_files/shared/usr/share/greatlem0n-os/fastfetch.jsonc`
