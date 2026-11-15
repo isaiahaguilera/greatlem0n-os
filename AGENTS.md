@@ -1040,6 +1040,10 @@ Project knowledge that agents need. Keep this in sync with any agent memory: whe
 - The maintainer's `gh` token has no `workflow` scope. `gh pr merge` fails on a PR that edits `.github/workflows/*` if main changed that file after the PR branch was created. Workaround: tick the PR's rebase checkbox on the Dependency Dashboard issue, run `gh workflow run Renovate`, wait for the rebased build, then merge. The Renovate GitHub App has workflow permission. Alternatively, the maintainer runs `gh auth refresh -s workflow`.
 - Direct pushes to `main` work for the maintainer: the branch ruleset requires the build check, but the admin role bypasses it.
 
+### Data SSD and SATA Power Saving
+
+The maintainer's mini PC has a 2 TB Fanxiang S101Q SATA SSD (XFS, `/var/mnt/data`) that freezes under long, heavy reads when SATA link power management is on: `READ FPDMA QUEUED` timeouts, hard link resets, then XFS shuts the filesystem down. It happened on 2026-06-10 and 2026-11-14. The kernel default here is `min_power_with_partial` (boot log `lpm-pol 4`). Switching to `max_performance` at runtime stopped the errors, so `system_files/shared/usr/lib/bootc/kargs.d/10-sata-max-performance.toml` sets `ahci.mobile_lpm_policy=1` for every boot. If freezes return with power saving off, the next step is `libata.force=2.00:noncq`, then replacing the drive. As of 2026-11-14 SMART shows 42 reallocated sectors (0 in June) and about 54°C at idle.
+
 ### Known Issue: GNOME Settings Unlock Over RDP
 
 Open since 2026-07-15, no fix applied (the maintainer chose to wait). Over an RDP session, the **Unlock** button in GNOME Settings (Users, Printers) does nothing. Diagnosis: not polkit. polkit correctly returns `auth_admin` with a challenge, and `pkexec` prompts fine over RDP. gnome-control-center 50 never issues the authorization call from the seatless RDP session. A possible workaround is wheel+active polkit grants for `org.freedesktop.accounts.user-administration` and `org.opensuse.cupspkhelper.mechanism.*` in `system_files/shared/etc/polkit-1/rules.d/90-remote-desktop-permissions.rules`. That deviates from the file's other rules (these actions prompt locally), so it needs the maintainer's sign-off. Separately, polkit-127 aborts on `unix-session` subjects for seatless sessions; that is worth reporting upstream but is not the cause.
@@ -1066,6 +1070,6 @@ Assisted-by: Claude Sonnet 4.5 via Claude Code
 
 ---
 
-**Last Updated**: 2026-10-29
+**Last Updated**: 2026-11-14
 **Image**: greatlem0n-os (Custom bootc image with system_files support and modular migration vision)
 **Based On**: Universal Blue finpilot template

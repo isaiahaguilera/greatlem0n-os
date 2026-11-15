@@ -22,6 +22,7 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - **Sigstore Registry Attachments**: Enable cosign signature discovery for `ghcr.io/isaiahaguilera/greatlem0n-os`
 - **Fastfetch Branding**: Custom logo directory with shuffle enabled, labeled key layout + percent palette, plus `/usr/bin` wrapper + shell/fish aliases (GNOME accent "bling" now opt-in)
 - **Tailscale Exit Node**: IP forwarding enabled (`net.ipv4.ip_forward`, `net.ipv6.conf.all.forwarding`) so this device can optionally serve as a Tailscale exit node — toggle via `ujust tailscale-exit-node`
+- **SATA Power Saving Off**: kernel argument `ahci.mobile_lpm_policy=1` keeps SATA links at full power, so the data SSD doesn't freeze under heavy reads
 
 ### Added Packages (Build-time)
 - Core system packages and services (see `build/02-system-config.sh` and `build/04-packages.sh`)
@@ -48,8 +49,9 @@ This image is based on [Bluefin](https://projectbluefin.io) and includes these c
 - `system_files/shared/usr/share/greatlem0n-os/lemon-logos/symbols_custom/TwoThumbsUpLemon.ansi`
 - `system_files/shared/etc/pki/containers/greatlem0n-os.pub`
 - `system_files/shared/etc/sysctl.d/99-tailscale.conf`
+- `system_files/shared/usr/lib/bootc/kargs.d/10-sata-max-performance.toml`
 
-*Last updated: 2026-06-17*
+*Last updated: 2026-11-14*
 
 ## Quick Start
 
